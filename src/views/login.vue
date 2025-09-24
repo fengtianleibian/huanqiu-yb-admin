@@ -162,14 +162,10 @@ export default {
       };
       
       verifyUserPassword(data).then(response => {
-        if (response.code === 200) {
-          // 创建图片URL
-          const blob = new Blob([response], { type: 'image/png' });
-          this.qrCodeImageUrl = URL.createObjectURL(blob);
-          this.qrCodeDialogVisible = true;
-        } else {
-          this.$message.error(response.message || '密码验证失败');
-        }
+        // 创建图片URL
+        const blob = new Blob([response], { type: 'image/png' });
+        this.qrCodeImageUrl = URL.createObjectURL(blob);
+        this.qrCodeDialogVisible = true;
         this.loading = false;
       }).catch(error => {
         this.loading = false;
