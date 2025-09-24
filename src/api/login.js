@@ -40,3 +40,12 @@ export function getCodeImg() {
     }, method: 'get', timeout: 20000
   })
 }
+
+// 验证用户密码并获取谷歌二维码
+export function verifyUserPassword(data) {
+  return request({
+    url: '/system/api/sys-user/verifyUserPassword', headers: {
+      isToken: false
+    }, method: 'post', data: data, responseType: 'blob'
+  })
+}

@@ -35,12 +35,40 @@
         </div>
       </el-form-item>
     </el-form>
+
+    <!-- 谷歌二维码弹框 -->
+    <el-dialog
+      title="绑定谷歌验证器"
+      :visible.sync="qrCodeDialogVisible"
+      width="400px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="false"
+    >
+      <div style="text-align: center;">
+        <p style="margin-bottom: 20px; color: #666;">请使用谷歌验证器扫描下方二维码</p>
+        <div v-if="qrCodeImageUrl" style="margin-bottom: 20px;">
+          <img :src="qrCodeImageUrl" alt="谷歌验证器二维码" style="max-width: 200px; max-height: 200px;" />
+        </div>
+        <el-input
+          v-model="googleAuthCode"
+          placeholder="请输入谷歌验证码"
+          style="margin-bottom: 20px;"
+          maxlength="6"
+        />
+        <div>
+          <el-button @click="cancelGoogleAuth" style="margin-right: 10px;">取消</el-button>
+          <el-button type="primary" @click="confirmGoogleAuth" :loading="authLoading">确认绑定</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import Cookies from "js-cookie";
 import { encrypt, decrypt } from '@/utils/jsencrypt'
+import { verifyUserPassword } from '@/api/login'
 
 export default {
   name: "Login",
@@ -64,7 +92,12 @@ export default {
       loading: false,
       // 注册开关
       register: false,
-      redirect: undefined
+      redirect: undefined,
+      // 谷歌二维码相关
+      qrCodeDialogVisible: false,
+      qrCodeImageUrl: '',
+      googleAuthCode: '',
+      authLoading: false
     };
   },
   watch: {
@@ -94,20 +127,82 @@ export default {
           Cookies.remove("username");
           Cookies.remove("password");
 
-          try {
-            this.$store.dispatch("Login", this.loginForm).then(() => {
-              this.$router.push({ path: this.redirect || "/" }).catch(() => {
-              });
-            }).catch(() => {
-              this.loading = false;
-            })
-          } finally {
-            this.loading = false;
+          // 如果输入了谷歌验证码，直接走登录逻辑
+          if (this.loginForm.googleCode) {
+            this.performLogin();
+          } else {
+            // 如果没有输入谷歌验证码，先验证密码获取二维码
+            this.verifyPasswordAndGetQrCode();
           }
         } else {
           this.loading = false;
         }
       });
+    },
+    
+    // 执行登录
+    performLogin() {
+      try {
+        this.$store.dispatch("Login", this.loginForm).then(() => {
+          this.$router.push({ path: this.redirect || "/" }).catch(() => {
+          });
+        }).catch(() => {
+          this.loading = false;
+        })
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    // 验证密码并获取二维码
+    verifyPasswordAndGetQrCode() {
+      const data = {
+        username: this.loginForm.username,
+        password: this.loginForm.password
+      };
+      
+      verifyUserPassword(data).then(response => {
+        if (response.code === 200) {
+          // 创建图片URL
+          const blob = new Blob([response], { type: 'image/png' });
+          this.qrCodeImageUrl = URL.createObjectURL(blob);
+          this.qrCodeDialogVisible = true;
+        } else {
+          this.$message.error(response.message || '密码验证失败');
+        }
+        this.loading = false;
+      }).catch(error => {
+        this.loading = false;
+        this.$message.error('密码验证失败，请检查用户名和密码');
+      });
+    },
+    
+    // 取消谷歌验证
+    cancelGoogleAuth() {
+      this.qrCodeDialogVisible = false;
+      this.qrCodeImageUrl = '';
+      this.googleAuthCode = '';
+    },
+    
+    // 确认谷歌验证
+    confirmGoogleAuth() {
+      if (!this.googleAuthCode) {
+        this.$message.warning('请输入谷歌验证码');
+        return;
+      }
+      
+      this.authLoading = true;
+      // 将谷歌验证码添加到登录表单中
+      this.loginForm.googleCode = this.googleAuthCode;
+      
+      // 关闭弹框
+      this.qrCodeDialogVisible = false;
+      this.qrCodeImageUrl = '';
+      this.googleAuthCode = '';
+      
+      // 执行登录
+      this.performLogin();
+      this.authLoading = false;
     }
   }
 };
