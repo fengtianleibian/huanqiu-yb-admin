@@ -1,34 +1,34 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <!--部门数据-->
-      <el-col :span="4" :xs="24">
-        <div class="head-container">
-          <el-input
-            v-model="deptName"
-            placeholder="请输入部门名称"
-            clearable
-            size="small"
-            prefix-icon="el-icon-search"
-            style="margin-bottom: 20px"
-          />
-        </div>
-        <div class="head-container">
-          <el-tree
-            :data="deptOptions"
-            :props="defaultProps"
-            :expand-on-click-node="false"
-            :filter-node-method="filterNode"
-            ref="tree"
-            node-key="id"
-            default-expand-all
-            highlight-current
-            @node-click="handleNodeClick"
-          />
-        </div>
-      </el-col>
+      <!--      &lt;!&ndash;部门数据&ndash;&gt;-->
+      <!--      <el-col :span="4" :xs="24">-->
+      <!--        <div class="head-container">-->
+      <!--          <el-input-->
+      <!--            v-model="deptName"-->
+      <!--            placeholder="请输入部门名称"-->
+      <!--            clearable-->
+      <!--            size="small"-->
+      <!--            prefix-icon="el-icon-search"-->
+      <!--            style="margin-bottom: 20px"-->
+      <!--          />-->
+      <!--        </div>-->
+      <!--        <div class="head-container">-->
+      <!--          <el-tree-->
+      <!--            :data="deptOptions"-->
+      <!--            :props="defaultProps"-->
+      <!--            :expand-on-click-node="false"-->
+      <!--            :filter-node-method="filterNode"-->
+      <!--            ref="tree"-->
+      <!--            node-key="id"-->
+      <!--            default-expand-all-->
+      <!--            highlight-current-->
+      <!--            @node-click="handleNodeClick"-->
+      <!--          />-->
+      <!--        </div>-->
+      <!--      </el-col>-->
       <!--用户数据-->
-      <el-col :span="20" :xs="24">
+      <el-col :span="24" :xs="24">
         <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch"
                  label-width="68px">
           <el-form-item label="用户名称" prop="userName">
@@ -151,9 +151,9 @@
                            :show-overflow-tooltip="true"/>
           <el-table-column label="部门" align="center" key="deptName" prop="deptName" v-if="columns[3].visible"
                            :show-overflow-tooltip="true"/>
-          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber"
-                           v-if="columns[4].visible" width="120"/>
-          <el-table-column label="状态" align="center" key="status" v-if="columns[5].visible">
+          <!--          <el-table-column label="手机号码" align="center" key="phonenumber" prop="phonenumber"-->
+          <!--                           v-if="columns[4].visible" width="120"/>-->
+          <el-table-column label="状态" align="center" key="status" v-if="columns[4].visible">
             <template slot-scope="scope">
               <el-switch
                 v-model="scope.row.status"
@@ -163,7 +163,7 @@
               ></el-switch>
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[6].visible" width="160">
+          <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[5].visible" width="160">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
@@ -200,6 +200,9 @@
                   </el-dropdown-item>
                   <el-dropdown-item command="handleAuthRole" icon="el-icon-circle-check"
                                     v-hasPermi="['system:user:edit']">分配角色
+                  </el-dropdown-item>
+                  <el-dropdown-item command="handleResetGetGooglePassword" icon="el-icon-key"
+                                    v-hasPermi="['system:user:resetPwd']">重置谷歌验证码
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
@@ -369,7 +372,7 @@ import {
   updateUser,
   resetUserPwd,
   changeUserStatus,
-  deptTreeSelect
+  deptTreeSelect, resetGetGooglePassword
 } from "@/api/system/user";
 import {getToken} from "@/utils/auth";
 import Treeselect from "@riophae/vue-treeselect";
@@ -447,9 +450,9 @@ export default {
         {key: 1, label: `用户名称`, visible: true},
         {key: 2, label: `用户昵称`, visible: true},
         {key: 3, label: `部门`, visible: true},
-        {key: 4, label: `手机号码`, visible: true},
-        {key: 5, label: `状态`, visible: true},
-        {key: 6, label: `创建时间`, visible: true}
+        // {key: 4, label: `手机号码`, visible: true},
+        {key: 4, label: `状态`, visible: true},
+        {key: 5, label: `创建时间`, visible: true}
       ],
       // 表单校验
       rules: {
@@ -592,6 +595,9 @@ export default {
         case "handleAuthRole":
           this.handleAuthRole(row);
           break;
+        case "handleResetGetGooglePassword":
+          this.handleResetGetGooglePassword(row);
+          break;
         default:
           break;
       }
@@ -699,6 +705,24 @@ export default {
         this.$modal.msgError(response.message);
       });
     },
+
+    /** 重置google验证码 */
+    handleResetGetGooglePassword(row) {
+      this.$modal.confirm('是否确认重置用户编号为"' + row.userId + '"的google验证码 ？').then(function () {
+        return resetGetGooglePassword(row.userId);
+      }).then(response => {
+        if (response.code === 200) {
+          this.getList();
+          this.$modal.msgSuccess("重置成功");
+        } else {
+          this.$modal.msgError(response.message);
+        }
+      }).catch(() => {
+        this.$modal.msgError(response.message);
+      });
+    },
+
+
     /** 导出按钮操作 */
     handleExport() {
       this.download('system/api/sys-user/export', {

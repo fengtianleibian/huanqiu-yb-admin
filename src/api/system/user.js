@@ -36,6 +36,13 @@ export function delUser(userId) {
   })
 }
 
+// 重置google验证码
+export function resetGetGooglePassword(userId) {
+  return request({
+    url: '/system/api/sys-user/resetGetGooglePassword/' + userId, method: 'post'
+  })
+}
+
 // 用户密码重置
 export function resetUserPwd(userId, password) {
   const data = {
