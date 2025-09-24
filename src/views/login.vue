@@ -13,16 +13,16 @@
           <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon" />
         </el-input>
       </el-form-item>
-      <!--      <el-form-item prop="googleCode">-->
-      <!--        <el-input-->
-      <!--          v-model="loginForm.googleCode"-->
-      <!--          type="password"-->
-      <!--          auto-complete="off"-->
-      <!--          placeholder="谷歌验证码"-->
-      <!--        >-->
-      <!--          <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon"/>-->
-      <!--        </el-input>-->
-      <!--      </el-form-item>-->
+      <el-form-item prop="googleCode">
+        <el-input
+          v-model="loginForm.googleCode"
+          type="password"
+          auto-complete="off"
+          placeholder="谷歌验证码"
+        >
+          <svg-icon slot="prefix" icon-class="password" class="el-input__icon input-icon"/>
+        </el-input>
+      </el-form-item>
 
       <el-form-item style="width:100%;">
         <el-button :loading="loading" size="medium" type="primary" style="width:100%;"

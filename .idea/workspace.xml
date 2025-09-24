@@ -1,18 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/src/api/biz/game.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/biz/game_odds.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/biz/member_bet_log.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/biz/odds_real_time_inventory_log.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/api/biz/site.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/game_odds/slots/egypt/index.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/game_odds/slots/fruit_777/index.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/game_odds/slots/gong_xi_fa_cai/index.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/log/member_bet_log/index.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/log/odds_real_time_inventory_log/index.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/site/index.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/login.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,8 +41,11 @@
     "git-widget-placeholder": "main",
     "last_opened_file_path": "/Users/J/GS/HQ/yb/huanqiu-yb-admin",
     "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "/Applications/IntelliJ IDEA.app/Contents/plugins/javascript-plugin/jsLanguageServicesImpl/external",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -73,7 +69,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758511518166</updated>
-      <workItem from="1758511519470" duration="211000" />
+      <workItem from="1758511519470" duration="4779000" />
     </task>
     <servers />
   </component>
