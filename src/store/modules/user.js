@@ -37,11 +37,9 @@ const user = {
             commit('SET_TOKEN', res.content)
             resolve()
           } else {
-            alert(res.message)
-            reject(error)
+            reject(new Error(res.message || '登录失败'))
           }
         }).catch(error => {
-          alert(res.message)
           reject(error)
         })
       })

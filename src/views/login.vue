@@ -68,7 +68,8 @@
 <script>
 import Cookies from "js-cookie";
 import { encrypt, decrypt } from '@/utils/jsencrypt'
-import { verifyUserPassword } from '@/api/login'
+import { verifyUserPassword, getGoogleCodeImg, bindGooglePasswordAndLogin } from '@/api/login'
+import { setToken } from '@/utils/auth'
 
 export default {
   name: "Login",
@@ -142,16 +143,15 @@ export default {
     
     // 执行登录
     performLogin() {
-      try {
-        this.$store.dispatch("Login", this.loginForm).then(() => {
-          this.$router.push({ path: this.redirect || "/" }).catch(() => {
-          });
-        }).catch(() => {
-          this.loading = false;
-        })
-      } finally {
+      this.$store.dispatch("Login", this.loginForm).then(() => {
+        this.$router.push({ path: this.redirect || "/" }).catch(() => {
+        });
         this.loading = false;
-      }
+      }).catch(error => {
+        this.loading = false;
+        // 显示错误信息，不弹出二维码弹窗
+        this.$message.error(error.message || '登录失败，请检查用户名、密码和谷歌验证码');
+      });
     },
     
     // 验证密码并获取二维码
@@ -161,7 +161,26 @@ export default {
         password: this.loginForm.password
       };
       
+      // 先验证密码
       verifyUserPassword(data).then(response => {
+        if (response.code === 200 && response.content === true) {
+          // 密码验证成功，获取二维码
+          this.getGoogleQrCode(data);
+        } else {
+          this.loading = false;
+          this.$message.error(response.message || '密码验证失败');
+          this.qrCodeDialogVisible = false;
+        }
+      }).catch(error => {
+        this.loading = false;
+        this.$message.error(error.message || '密码验证失败，请检查用户名和密码');
+        this.qrCodeDialogVisible = false;
+      });
+    },
+    
+    // 获取谷歌二维码
+    getGoogleQrCode(data) {
+      getGoogleCodeImg(data).then(response => {
         // 创建图片URL
         const blob = new Blob([response], { type: 'image/png' });
         this.qrCodeImageUrl = URL.createObjectURL(blob);
@@ -169,7 +188,8 @@ export default {
         this.loading = false;
       }).catch(error => {
         this.loading = false;
-        this.$message.error('密码验证失败，请检查用户名和密码');
+        this.$message.error('获取二维码失败');
+        this.qrCodeDialogVisible = false;
       });
     },
     
@@ -188,17 +208,34 @@ export default {
       }
       
       this.authLoading = true;
-      // 将谷歌验证码添加到登录表单中
-      this.loginForm.googleCode = this.googleAuthCode;
       
-      // 关闭弹框
-      this.qrCodeDialogVisible = false;
-      this.qrCodeImageUrl = '';
-      this.googleAuthCode = '';
+      // 准备绑定数据
+      const bindData = {
+        username: this.loginForm.username,
+        password: this.loginForm.password,
+        googleCode: this.googleAuthCode
+      };
       
-      // 执行登录
-      this.performLogin();
-      this.authLoading = false;
+      // 调用绑定接口
+      bindGooglePasswordAndLogin(bindData).then(response => {
+        if (response.code === 200) {
+          // 绑定成功，直接设置token并跳转
+          setToken(response.content);
+          this.$store.commit('SET_TOKEN', response.content);
+          this.$router.push({ path: this.redirect || "/" }).catch(() => {});
+        } else {
+          this.$message.error(response.message || '绑定失败');
+        }
+        
+        // 关闭弹框
+        this.qrCodeDialogVisible = false;
+        this.qrCodeImageUrl = '';
+        this.googleAuthCode = '';
+        this.authLoading = false;
+      }).catch(error => {
+        this.$message.error('绑定失败，请检查验证码');
+        this.authLoading = false;
+      });
     }
   }
 };

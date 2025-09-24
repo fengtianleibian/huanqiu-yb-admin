@@ -41,11 +41,29 @@ export function getCodeImg() {
   })
 }
 
-// 验证用户密码并获取谷歌二维码
+// 验证用户密码
 export function verifyUserPassword(data) {
   return request({
     url: '/system/api/sys-user/verifyUserPassword', headers: {
       isToken: false
+    }, method: 'post', data: data
+  })
+}
+
+// 获取谷歌验证码二维码
+export function getGoogleCodeImg(data) {
+  return request({
+    url: '/system/api/sys-user/getCodeImg', headers: {
+      isToken: false
     }, method: 'post', data: data, responseType: 'blob'
+  })
+}
+
+// 绑定谷歌验证码并登录
+export function bindGooglePasswordAndLogin(data) {
+  return request({
+    url: '/system/api/sys-user/bindGooglePasswordAndLogin', headers: {
+      isToken: false, repeatSubmit: false
+    }, method: 'post', data: data
   })
 }
