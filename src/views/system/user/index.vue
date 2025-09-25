@@ -300,6 +300,9 @@
           </el-col>
         </el-row>
         <el-row>
+
+          
+
           <!-- <el-col :span="12">
             <el-form-item label="岗位">
               <el-select v-model="form.postIds" multiple placeholder="请选择岗位">
@@ -313,7 +316,7 @@
               </el-select>
             </el-form-item>
           </el-col> -->
-    
+
         </el-row>
         <el-row>
           <el-col :span="24">
