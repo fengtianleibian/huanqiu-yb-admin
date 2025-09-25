@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="IP地址" prop="ip">
+      <el-form-item label="域名" prop="domain">
         <el-input
-          v-model="queryParams.ip"
-          placeholder="请输入IP地址"
+          v-model="queryParams.domain"
+          placeholder="请输入域名"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -23,7 +23,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['ip_whitelist:add']"
+          v-hasPermi="['domain:add']"
         >新增
         </el-button>
       </el-col>
@@ -35,7 +35,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['ip_whitelist:edit']"
+          v-hasPermi="['domain:edit']"
         >修改
         </el-button>
       </el-col>
@@ -47,7 +47,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['ip_whitelist:remove']"
+          v-hasPermi="['domain:remove']"
         >删除
         </el-button>
       </el-col>
@@ -58,17 +58,25 @@
           icon="el-icon-refresh"
           size="mini"
           @click="handleRefreshCache"
-          v-hasPermi="['ip_whitelist:remove']"
+          v-hasPermi="['domain:remove']"
         >刷新缓存
         </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="ipWhitelistList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="domainList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="ID" align="center" prop="id"/>
-      <el-table-column label="IP地址" align="center" prop="ip"/>
+      <el-table-column label="域名" align="center" prop="domain"/>
+      <el-table-column label="默认代理" align="center" prop="defaultProxy"/>
+      <el-table-column label="默认代理ID" align="center" prop="defaultProxyId"/>
+      <el-table-column label="默认会员类型" align="center" prop="defaultMemberType">
+        <template slot-scope="scope">
+          <span>{{ getMemberTypeText(scope.row.defaultMemberType) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="备注" align="center" prop="remark" show-overflow-tooltip/>
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -86,7 +94,7 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['ip_whitelist:edit']"
+            v-hasPermi="['domain:edit']"
           >修改
           </el-button>
           <el-button
@@ -94,7 +102,7 @@
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['ip_whitelist:remove']"
+            v-hasPermi="['domain:remove']"
           >删除
           </el-button>
         </template>
@@ -109,11 +117,23 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改IP白名单对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="IP地址" prop="ip">
-          <el-input v-model="form.ip" placeholder="请输入IP地址"/>
+    <!-- 添加或修改域名对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="域名" prop="domain">
+          <el-input v-model="form.domain" placeholder="请输入域名"/>
+        </el-form-item>
+        <el-form-item label="默认代理" prop="defaultProxy">
+          <el-input v-model="form.defaultProxy" placeholder="请输入默认代理"/>
+        </el-form-item>
+        <el-form-item label="会员类型" prop="defaultMemberType">
+          <el-select v-model="form.defaultMemberType" placeholder="请选择默认会员类型" style="width: 100%">
+            <el-option label="会员账号" :value="0"></el-option>
+            <el-option label="代理账号" :value="1"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" :rows="3"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -126,16 +146,16 @@
 
 <script>
 import {
-  listIpWhitelist,
-  getIpWhitelist,
-  delIpWhitelist,
-  addIpWhitelist,
-  updateIpWhitelist,
+  listDomain,
+  getDomain,
+  delDomain,
+  addDomain,
+  updateDomain,
   refreshCache
-} from "@/api/system/ip_whitelist";
+} from "@/api/biz/domain";
 
 export default {
-  name: "IpWhitelist",
+  name: "Domain",
   data() {
     return {
       // 遮罩层
@@ -150,8 +170,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // IP白名单表格数据
-      ipWhitelistList: [],
+      // 域名表格数据
+      domainList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -160,15 +180,26 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        ip: undefined
+        domain: undefined
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        ip: [
-          {required: true, message: "IP地址不能为空", trigger: "blur"},
-          {pattern: /^(\d{1,3}\.){3}\d{1,3}$/, message: "请输入正确的IP地址格式", trigger: "blur"}
+        domain: [
+          {required: true, message: "域名不能为空", trigger: "blur"},
+        ],
+        defaultProxy: [
+          {required: true, message: "默认代理不能为空", trigger: "blur"}
+        ],
+        defaultProxyId: [
+          {required: true, message: "默认代理ID不能为空", trigger: "blur"}
+        ],
+        defaultMemberType: [
+          {required: true, message: "默认会员类型不能为空", trigger: "change"}
+        ],
+        remark: [
+          {max: 500, message: "备注长度不能超过500个字符", trigger: "blur"}
         ]
       }
     };
@@ -177,12 +208,12 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询IP白名单列表 */
+    /** 查询域名列表 */
     getList() {
       this.loading = true;
-      listIpWhitelist(this.queryParams).then(response => {
+      listDomain(this.queryParams).then(response => {
         if (response.code === 200) {
-          this.ipWhitelistList = response.content.list;
+          this.domainList = response.content.list;
           this.total = response.content.total;
           this.loading = false;
         } else {
@@ -199,7 +230,11 @@ export default {
     reset() {
       this.form = {
         id: undefined,
-        ip: undefined
+        domain: undefined,
+        defaultProxy: undefined,
+        defaultProxyId: undefined,
+        defaultMemberType: undefined,
+        remark: undefined
       };
       this.resetForm("form");
     },
@@ -223,17 +258,17 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加IP白名单";
+      this.title = "添加域名";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getIpWhitelist(id).then(response => {
+      getDomain(id).then(response => {
         if (response.code === 200) {
           this.form = response.content;
           this.open = true;
-          this.title = "修改IP白名单";
+          this.title = "修改域名";
         } else {
           this.$modal.msgError(response.message);
         }
@@ -244,7 +279,7 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != undefined) {
-            updateIpWhitelist(this.form).then(response => {
+            updateDomain(this.form).then(response => {
               if (response.code === 200) {
                 this.$modal.msgSuccess("修改成功");
                 this.open = false;
@@ -254,7 +289,7 @@ export default {
               }
             });
           } else {
-            addIpWhitelist(this.form).then(response => {
+            addDomain(this.form).then(response => {
               if (response.code === 200) {
                 this.$modal.msgSuccess("新增成功");
                 this.open = false;
@@ -270,8 +305,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除IP白名单编号为"' + ids + '"的数据项？').then(function () {
-        return delIpWhitelist(ids);
+      this.$modal.confirm('是否确认删除域名编号为"' + ids + '"的数据项？').then(function () {
+        return delDomain(ids);
       }).then(response => {
         if (response.code === 200) {
           this.getList();
@@ -285,7 +320,7 @@ export default {
     },
     /** 刷新缓存按钮操作 */
     handleRefreshCache() {
-      this.$modal.confirm('是否确认刷新IP白名单缓存？').then(function () {
+      this.$modal.confirm('是否确认刷新域名缓存？').then(function () {
         return refreshCache();
       }).then(response => {
         if (response.code === 200) {
@@ -296,6 +331,14 @@ export default {
       }).catch(() => {
         this.$modal.msgError(response.message);
       });
+    },
+    /** 获取会员类型文本 */
+    getMemberTypeText(type) {
+      const typeMap = {
+        0: '会员账号',
+        1: '代理账号'
+      };
+      return typeMap[type] || '未知';
     }
   }
 };
