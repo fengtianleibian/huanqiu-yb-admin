@@ -163,7 +163,17 @@
               ></el-switch>
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[5].visible" width="160">
+          <el-table-column label="单次出款限额" align="center" key="withdrawalLimit" prop="withdrawalLimit" v-if="columns[5].visible" width="120">
+            <template slot-scope="scope">
+              <span>{{ scope.row.withdrawalLimit === -1 ? '无权限' : scope.row.withdrawalLimit === 0 ? '无限制' : scope.row.withdrawalLimit }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="单次加款限额" align="center" key="depositLimit" prop="depositLimit" v-if="columns[6].visible" width="120">
+            <template slot-scope="scope">
+              <span>{{ scope.row.depositLimit === -1 ? '无权限' : scope.row.depositLimit === 0 ? '无限制' : scope.row.depositLimit }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="创建时间" align="center" prop="createTime" v-if="columns[7].visible" width="160">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createTime) }}</span>
             </template>
@@ -319,6 +329,30 @@
 
         </el-row>
         <el-row>
+          <el-col :span="12">
+            <el-form-item label="单次出款限额" prop="withdrawalLimit">
+              <el-input v-model="form.withdrawalLimit" placeholder="请输入单次出款限额" type="number" min="-1">
+                <template slot="append">
+                  <el-tooltip content="-1代表无权限，0代表无限制" placement="top">
+                    <i class="el-icon-question"></i>
+                  </el-tooltip>
+                </template>
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="单次加款限额" prop="depositLimit">
+              <el-input v-model="form.depositLimit" placeholder="请输入单次加款限额" type="number" min="-1">
+                <template slot="append">
+                  <el-tooltip content="-1代表无权限，0代表无限制" placement="top">
+                    <i class="el-icon-question"></i>
+                  </el-tooltip>
+                </template>
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="24">
             <el-form-item label="备注">
               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
@@ -456,7 +490,9 @@ export default {
         {key: 3, label: `部门`, visible: true},
         // {key: 4, label: `手机号码`, visible: true},
         {key: 4, label: `状态`, visible: true},
-        {key: 5, label: `创建时间`, visible: true}
+        {key: 5, label: `单次出款限额`, visible: true},
+        {key: 6, label: `单次加款限额`, visible: true},
+        {key: 7, label: `创建时间`, visible: true}
       ],
       // 表单校验
       rules: {
@@ -485,6 +521,14 @@ export default {
             message: "请输入正确的手机号码",
             trigger: "blur"
           }
+        ],
+        withdrawalLimit: [
+          {required: true, message: "单次出款限额不能为空", trigger: "blur"},
+          {type: "number", message: "请输入有效的数字", trigger: "blur"}
+        ],
+        depositLimit: [
+          {required: true, message: "单次加款限额不能为空", trigger: "blur"},
+          {type: "number", message: "请输入有效的数字", trigger: "blur"}
         ]
       }
     };
@@ -567,7 +611,9 @@ export default {
         status: "0",
         remark: undefined,
         postIds: [],
-        roleIds: []
+        roleIds: [],
+        withdrawalLimit: -1,
+        depositLimit: -1
       };
       this.resetForm("form");
     },
