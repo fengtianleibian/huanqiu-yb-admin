@@ -168,7 +168,7 @@
               <span>{{ scope.row.withdrawalLimit === -1 ? '无权限' : scope.row.withdrawalLimit === 0 ? '无限制' : scope.row.withdrawalLimit }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="单次加款限额" align="center" key="depositLimit" prop="depositLimit" v-if="columns[6].visible" width="120">
+          <el-table-column label="单次入款限额" align="center" key="depositLimit" prop="depositLimit" v-if="columns[6].visible" width="120">
             <template slot-scope="scope">
               <span>{{ scope.row.depositLimit === -1 ? '无权限' : scope.row.depositLimit === 0 ? '无限制' : scope.row.depositLimit }}</span>
             </template>
@@ -345,7 +345,7 @@
         </el-row>
         <el-row>
           <el-col :span="24">
-            <el-form-item label="单次加款限额" prop="depositLimit" label-width="120px">
+            <el-form-item label="单次入款限额" prop="depositLimit" label-width="120px">
               <el-input v-model="form.depositLimit" placeholder="-1代表无权限，0代表无限制" type="number" min="-1">
                
               </el-input>
@@ -485,7 +485,7 @@ export default {
         // {key: 4, label: `手机号码`, visible: true},
         {key: 4, label: `状态`, visible: true},
         {key: 5, label: `单次出款限额`, visible: true},
-        {key: 6, label: `单次加款限额`, visible: true},
+        {key: 6, label: `单次入款限额`, visible: true},
         {key: 7, label: `创建时间`, visible: true}
       ],
       // 表单校验
@@ -520,7 +520,7 @@ export default {
           {required: true, message: "单次出款限额不能为空", trigger: "blur"},
         ],
         depositLimit: [
-          {required: true, message: "单次加款限额不能为空", trigger: "blur"},
+          {required: true, message: "单次入款限额不能为空", trigger: "blur"},
         ]
       }
     };
