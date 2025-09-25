@@ -110,9 +110,22 @@
            <span>{{ getMemberTypeText(scope.row.isAgent) }}</span>
          </template>
        </el-table-column>
-       <el-table-column label="用户状态" align="center" prop="status">
+       <el-table-column label="状态" align="center" prop="status" width="150">
          <template slot-scope="scope">
-           <el-tag :type="getStatusTagType(scope.row.status)">{{ getStatusText(scope.row.status) }}</el-tag>
+           <div>
+             <el-tag :type="getStatusTagType(scope.row.status)">{{ getStatusText(scope.row.status) }}</el-tag>
+             <div style="margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+               <span style="font-size: 12px; color: #409EFF;">未关注</span>
+               <el-switch
+                 v-model="scope.row.isFollow"
+                 :active-value="1"
+                 :inactive-value="0"
+                 @change="handleFollowChange(scope.row)"
+                 size="mini">
+               </el-switch>
+               <span style="font-size: 12px; color: #000;">已关注</span>
+             </div>
+           </div>
          </template>
        </el-table-column>
       <el-table-column label="所属代理" align="center" prop="belongAgent" width="120"/>
@@ -239,6 +252,21 @@ export default {
     handleView(row) {
       this.viewData = row;
       this.viewOpen = true;
+    },
+    /** 处理关注状态变化 */
+    handleFollowChange(row) {
+      // TODO: 这里可以添加调用接口的逻辑
+      console.log('关注状态变化:', row.id, 'isFollow:', row.isFollow);
+      // 示例：调用API更新关注状态
+      // updateMemberFollow(row.id, row.isFollow).then(response => {
+      //   if (response.code === 200) {
+      //     this.$modal.msgSuccess(row.isFollow ? '关注成功' : '取消关注成功');
+      //   } else {
+      //     this.$modal.msgError(response.message);
+      //     // 回滚状态
+      //     row.isFollow = row.isFollow === 1 ? 0 : 1;
+      //   }
+      // });
     },
     /** 获取VIP等级文本 */
     getVipText(vip) {
