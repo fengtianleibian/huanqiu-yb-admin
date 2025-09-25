@@ -163,7 +163,6 @@
       @pagination="getList"
     />
 
-
     <!-- 查看会员详情对话框 -->
     <el-dialog title="会员详情" :visible.sync="viewOpen" width="800px" append-to-body>
       <el-descriptions :column="2" border>
