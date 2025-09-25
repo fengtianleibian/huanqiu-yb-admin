@@ -329,36 +329,30 @@
 
         </el-row>
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="单次出款限额" prop="withdrawalLimit">
-              <el-input v-model="form.withdrawalLimit" placeholder="请输入单次出款限额" type="number" min="-1">
-                <template slot="append">
-                  <el-tooltip content="-1代表无权限，0代表无限制" placement="top">
-                    <i class="el-icon-question"></i>
-                  </el-tooltip>
-                </template>
-              </el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="单次加款限额" prop="depositLimit">
-              <el-input v-model="form.depositLimit" placeholder="请输入单次加款限额" type="number" min="-1">
-                <template slot="append">
-                  <el-tooltip content="-1代表无权限，0代表无限制" placement="top">
-                    <i class="el-icon-question"></i>
-                  </el-tooltip>
-                </template>
-              </el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="24">
             <el-form-item label="备注">
               <el-input v-model="form.remark" type="textarea" placeholder="请输入内容"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="单次出款限额" prop="withdrawalLimit" label-width="120px">
+              <el-input v-model="form.withdrawalLimit" placeholder="-1代表无权限，0代表无限制" type="number" min="-1">
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="单次加款限额" prop="depositLimit" label-width="120px">
+              <el-input v-model="form.depositLimit" placeholder="-1代表无权限，0代表无限制" type="number" min="-1">
+               
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+       
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -524,11 +518,9 @@ export default {
         ],
         withdrawalLimit: [
           {required: true, message: "单次出款限额不能为空", trigger: "blur"},
-          {type: "number", message: "请输入有效的数字", trigger: "blur"}
         ],
         depositLimit: [
           {required: true, message: "单次加款限额不能为空", trigger: "blur"},
-          {type: "number", message: "请输入有效的数字", trigger: "blur"}
         ]
       }
     };
@@ -612,8 +604,8 @@ export default {
         remark: undefined,
         postIds: [],
         roleIds: [],
-        withdrawalLimit: -1,
-        depositLimit: -1
+        withdrawalLimit: undefined,
+        depositLimit: undefined
       };
       this.resetForm("form");
     },
