@@ -1,11 +1,11 @@
 import request from '@/utils/request'
 
 // 登录方法
-export function login(username, password, googleCode) {
+export function login(username, password, googleCode, domain, deviceType) {
   return request({
     url: '/system/api/sys-user/login', headers: {
       isToken: false, repeatSubmit: false
-    }, method: 'post', data: {username, password, googleCode}
+    }, method: 'post', data: {username, password, googleCode, domain, deviceType}
   })
 }
 

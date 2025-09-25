@@ -34,6 +34,24 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="域名" prop="domain">
+        <el-input
+          v-model="queryParams.domain"
+          placeholder="请输入域名"
+          clearable
+          style="width: 240px;"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="设备类型" prop="deviceType">
+        <el-input
+          v-model="queryParams.deviceType"
+          placeholder="请输入设备类型"
+          clearable
+          style="width: 240px;"
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="登录时间">
         <el-date-picker
           v-model="dateRange"
@@ -112,6 +130,8 @@
       <el-table-column label="登录地点" align="center" prop="loginLocation" :show-overflow-tooltip="true"/>
       <el-table-column label="浏览器" align="center" prop="browser" :show-overflow-tooltip="true"/>
       <el-table-column label="操作系统" align="center" prop="os"/>
+      <el-table-column label="域名" align="center" prop="domain" :show-overflow-tooltip="true"/>
+      <el-table-column label="设备类型" align="center" prop="deviceType" :show-overflow-tooltip="true"/>
       <el-table-column label="登录状态" align="center" prop="status">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_common_status" :value="scope.row.status"/>

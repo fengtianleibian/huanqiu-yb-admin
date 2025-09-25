@@ -1,5 +1,6 @@
 import {login, logout, getInfo} from '@/api/login'
 import {getToken, setToken, removeToken} from '@/utils/auth'
+import {getCurrentDomain, getDeviceType} from '@/utils/device'
 
 const user = {
   state: {
@@ -30,8 +31,10 @@ const user = {
       const username = userInfo.username.trim()
       const password = userInfo.password
       const googleCode = userInfo.googleCode
+      const domain = getCurrentDomain()
+      const deviceType = getDeviceType()
       return new Promise((resolve, reject) => {
-        login(username, password, googleCode).then(res => {
+        login(username, password, googleCode, domain, deviceType).then(res => {
           if (res.code === 200) {
             setToken(res.content)
             commit('SET_TOKEN', res.content)

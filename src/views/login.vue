@@ -70,6 +70,7 @@ import Cookies from "js-cookie";
 import { encrypt, decrypt } from '@/utils/jsencrypt'
 import { verifyUserPassword, getGoogleCodeImg, bindGooglePasswordAndLogin } from '@/api/login'
 import { setToken } from '@/utils/auth'
+import { getCurrentDomain, getDeviceType } from '@/utils/device'
 
 export default {
   name: "Login",
@@ -213,7 +214,9 @@ export default {
       const bindData = {
         username: this.loginForm.username,
         password: this.loginForm.password,
-        googleCode: this.googleAuthCode
+        googleCode: this.googleAuthCode,
+        domain: getCurrentDomain(),
+        deviceType: getDeviceType()
       };
       
       // 调用绑定接口
