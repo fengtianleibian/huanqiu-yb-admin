@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/src/views/biz/member/member_vip_level/index.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/assets/icons/svg/vip.svg" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +58,7 @@
       <recent name="$PROJECT_DIR$/src/views/biz/member/list" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/assets/icons/svg" />
       <recent name="$PROJECT_DIR$/src/views/biz/sys/domain" />
       <recent name="$PROJECT_DIR$/src/views/biz/sys" />
       <recent name="$PROJECT_DIR$/src/views/biz/domain" />
@@ -79,7 +80,7 @@
       <option name="presentableId" value="Default" />
       <updated>1758511518166</updated>
       <workItem from="1758511519470" duration="14737000" />
-      <workItem from="1758787548099" duration="9614000" />
+      <workItem from="1758787548099" duration="9927000" />
     </task>
     <servers />
   </component>
