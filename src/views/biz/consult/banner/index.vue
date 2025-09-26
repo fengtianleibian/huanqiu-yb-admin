@@ -40,7 +40,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['carousel:add']"
+          v-hasPermi="['banner:add']"
         >新增
         </el-button>
       </el-col>
@@ -52,7 +52,7 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['carousel:remove']"
+          v-hasPermi="['banner:remove']"
         >删除
         </el-button>
       </el-col>
@@ -70,8 +70,19 @@
       </el-table-column>
       <el-table-column label="显示区域" align="center" prop="area">
         <template v-slot="scope">
-          <span v-if="scope.row.area === 1">首页</span>
-          <span v-if="scope.row.area === 2">商城</span>
+          <span v-if="scope.row.area === 1">PC</span>
+          <span v-if="scope.row.area === 2">手机</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="排序" align="center" prop="sort"/>
+      <el-table-column label="开始时间" align="center" prop="beginTime">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.beginTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="结束时间" align="center" prop="endTime">
+        <template slot-scope="scope">
+          <span>{{ parseTime(scope.row.endTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
@@ -89,7 +100,7 @@
       >
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="handleUpdate(scope.row)"
-                     v-hasPermi="['carousel:edit']">
+                     v-hasPermi="['banner:edit']">
             <el-tag type="info">编辑</el-tag>
           </el-button>
         </template>
@@ -116,10 +127,17 @@
         <el-row>
           <el-col :span="24">
             <el-form-item label="显示区域" prop="area">
-              <el-select v-model="form.area" placeholder="请选择状态" clearable style="width: 100%">
-                <el-option label="首页" :value="1"/>
-                <el-option label="商城" :value="2"/>
+              <el-select v-model="form.area" placeholder="请选择显示区域" clearable style="width: 100%">
+                <el-option label="PC" :value="1"/>
+                <el-option label="手机" :value="2"/>
               </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="排序" prop="sort">
+              <el-input-number v-model="form.sort" :min="0" :max="999" placeholder="请输入排序" style="width: 100%"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -130,6 +148,30 @@
                 <el-option label="正常" :value="0"/>
                 <el-option label="停用" :value="1"/>
               </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="开始时间" prop="beginTime">
+              <el-date-picker
+                v-model="form.beginTime"
+                type="datetime"
+                placeholder="选择开始时间"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                style="width: 100%">
+              </el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="结束时间" prop="endTime">
+              <el-date-picker
+                v-model="form.endTime"
+                type="datetime"
+                placeholder="选择结束时间"
+                value-format="yyyy-MM-dd HH:mm:ss"
+                style="width: 100%">
+              </el-date-picker>
             </el-form-item>
           </el-col>
         </el-row>
@@ -161,7 +203,7 @@
 </template>
 
 <script>
-import {addCarousel, delCarousel, listCarousel, updateCarousel, info} from "@/api/biz/carousel";
+import {addBanner, delBanner, listBanner, updateBanner, info} from "@/api/biz/banner";
 import {getToken} from "@/utils/auth";
 
 export default {
@@ -198,7 +240,7 @@ export default {
       // 日期范围
       dateRange: [],
       //上次组件
-      uploadUrl: process.env.VUE_APP_BASE_API + 'system/api/carousel/upload',
+      uploadUrl: process.env.VUE_APP_BASE_API + 'system/api/banner/upload',
       isLock: false,
       isImg: true,
       // 表单参数
@@ -207,7 +249,10 @@ export default {
         name: undefined,
         status: undefined,
         area: undefined,
-        url: undefined
+        url: undefined,
+        sort: 0,
+        beginTime: undefined,
+        endTime: undefined
       },
       // 表单校验
       rules: {
@@ -222,6 +267,9 @@ export default {
         ],
         status: [
           {required: true, message: "状态不能为空", trigger: "change"}
+        ],
+        sort: [
+          {required: true, message: "排序不能为空", trigger: "blur"}
         ]
       }
     };
@@ -248,7 +296,7 @@ export default {
         this.queryParams.beginTime = undefined;
         this.queryParams.endTime = undefined;
       }
-      listCarousel(this.queryParams).then(response => {
+      listBanner(this.queryParams).then(response => {
         if (response.code === 200) {
           this.carouselList = response.content.list;
           this.total = response.content.total;
@@ -308,7 +356,11 @@ export default {
         id: undefined,
         name: undefined,
         status: undefined,
-        url: undefined
+        area: undefined,
+        url: undefined,
+        sort: 0,
+        beginTime: undefined,
+        endTime: undefined
       };
       this.resetForm("form");
     },
@@ -325,7 +377,7 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id !== undefined) {
-            updateCarousel(this.form).then(response => {
+            updateBanner(this.form).then(response => {
               if (response.code === 200) {
                 this.$modal.msgSuccess("修改成功");
                 this.open = false;
@@ -335,7 +387,7 @@ export default {
               }
             });
           } else {
-            addCarousel(this.form).then(response => {
+            addBanner(this.form).then(response => {
               if (response.code === 200) {
                 this.$modal.msgSuccess("新增成功");
                 this.open = false;
@@ -397,9 +449,9 @@ export default {
 
     /** 删除按钮操作 */
     handleDelete(row) {
-      const carouselIds = row.id || this.ids;
-      this.$modal.confirm('是否确认删除编号为"' + carouselIds + '"的数据项？').then(function () {
-        return delCarousel(carouselIds);
+      const bannerIds = row.id || this.ids;
+      this.$modal.confirm('是否确认删除编号为"' + bannerIds + '"的数据项？').then(function () {
+        return delBanner(bannerIds);
       }).then(response => {
         if (response.code === 200) {
           this.getList();
