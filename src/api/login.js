@@ -28,7 +28,7 @@ export function getInfo() {
 // 退出方法
 export function logout() {
   return request({
-    url: '/system/api/sys-user/logout', method: 'delete'
+    url: '/system/api/sys-user/logout', method: 'post'
   })
 }
 

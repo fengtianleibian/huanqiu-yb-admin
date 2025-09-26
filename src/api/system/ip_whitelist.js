@@ -39,7 +39,7 @@ export function updateIpWhitelist(data) {
 export function delIpWhitelist(ids) {
   return request({
     url: '/system/api/sys_ip_whitelist/' + ids,
-    method: 'delete'
+    method: 'post'
   })
 }
 
@@ -47,6 +47,6 @@ export function delIpWhitelist(ids) {
 export function refreshCache() {
   return request({
     url: '/system/api/sys_ip_whitelist/refreshCache',
-    method: 'delete'
+    method: 'post'
   })
 }

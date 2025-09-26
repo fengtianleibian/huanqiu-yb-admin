@@ -10,6 +10,6 @@ export function list(query) {
 // 强退用户
 export function forceLogout(userId) {
   return request({
-    url: '/system/api/sys-user-online/' + userId, method: 'delete'
+    url: '/system/api/sys-user-online/' + userId, method: 'post'
   })
 }

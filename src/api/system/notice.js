@@ -31,6 +31,6 @@ export function updateNotice(data) {
 // 删除公告
 export function delNotice(noticeId) {
   return request({
-    url: '/system/api/sys-notice/' + noticeId, method: 'delete'
+    url: '/system/api/sys-notice/' + noticeId, method: 'post'
   })
 }

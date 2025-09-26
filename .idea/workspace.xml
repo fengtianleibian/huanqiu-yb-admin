@@ -5,8 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/src/api/biz/member.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/biz/member.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/member/member_login_log/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/member/member_login_log/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/monitor/online.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/monitor/online.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/dept.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/dept.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/dict/type.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/dict/type.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/ip_whitelist.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/ip_whitelist.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/logininfor.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/logininfor.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/notice.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/notice.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/operlog.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/operlog.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/post.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/post.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/role.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/role.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/system/user.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/system/user.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +88,7 @@
       <option name="presentableId" value="Default" />
       <updated>1758511518166</updated>
       <workItem from="1758511519470" duration="14737000" />
-      <workItem from="1758787548099" duration="6147000" />
+      <workItem from="1758787548099" duration="6539000" />
     </task>
     <servers />
   </component>

@@ -31,14 +31,14 @@ export function updateType(data) {
 // 删除字典类型
 export function delType(dictId) {
   return request({
-    url: '/system/api/sys-dict-type/' + dictId, method: 'delete'
+    url: '/system/api/sys-dict-type/' + dictId, method: 'post'
   })
 }
 
 // 刷新字典缓存
 export function refreshCache() {
   return request({
-    url: '/system/api/sys-dict-type/refreshCache', method: 'delete'
+    url: '/system/api/sys-dict-type/refreshCache', method: 'post'
   })
 }
 

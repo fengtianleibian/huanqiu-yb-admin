@@ -38,6 +38,6 @@ export function updateData(data) {
 // 删除字典数据
 export function delData(dictCode) {
   return request({
-    url: '/system/api/sys-dict-data/' + dictCode, method: 'delete'
+    url: '/system/api/sys-dict-data/' + dictCode, method: 'post'
   })
 }

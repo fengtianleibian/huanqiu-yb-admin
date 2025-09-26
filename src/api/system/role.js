@@ -48,7 +48,7 @@ export function changeRoleStatus(roleId, status) {
 // 删除角色
 export function delRole(roleId) {
   return request({
-    url: '/system/api/sys-role/' + roleId, method: 'delete'
+    url: '/system/api/sys-role/' + roleId, method: 'post'
   })
 }
 

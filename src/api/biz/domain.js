@@ -39,7 +39,7 @@ export function updateDomain(data) {
 export function delDomain(ids) {
   return request({
     url: '/system/api/domain/' + ids,
-    method: 'delete'
+    method: 'post'
   })
 }
 

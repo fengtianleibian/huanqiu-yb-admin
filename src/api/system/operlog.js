@@ -10,13 +10,13 @@ export function list(query) {
 // 删除操作日志
 export function delOperlog(operId) {
   return request({
-    url: '/system/api/es/sys-oper-log/' + operId, method: 'delete'
+    url: '/system/api/es/sys-oper-log/' + operId, method: 'post'
   })
 }
 
 // 清空操作日志
 export function cleanOperlog() {
   return request({
-    url: '/system/api/es/sys-oper-log/clean', method: 'delete'
+    url: '/system/api/es/sys-oper-log/clean', method: 'post'
   })
 }

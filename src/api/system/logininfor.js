@@ -13,7 +13,7 @@ export function list(query) {
 export function delLogininfor(infoId) {
   return request({
     url: '/system/api/sys-login-info/' + infoId,
-    method: 'delete'
+    method: 'post'
   })
 }
 
@@ -28,6 +28,6 @@ export function unlockLogininfor(userName) {
 export function cleanLogininfor() {
   return request({
     url: '/system/api/sys-login-info/clean',
-    method: 'delete'
+    method: 'post'
   })
 }

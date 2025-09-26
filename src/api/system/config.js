@@ -38,13 +38,13 @@ export function updateConfig(data) {
 // 删除参数配置
 export function delConfig(configId) {
   return request({
-    url: '/system/api/sys-config/' + configId, method: 'delete'
+    url: '/system/api/sys-config/' + configId, method: 'post'
   })
 }
 
 // 刷新参数缓存
 export function refreshCache() {
   return request({
-    url: '/system/api/sys-config/refreshCache', method: 'delete'
+    url: '/system/api/sys-config/refreshCache', method: 'post'
   })
 }

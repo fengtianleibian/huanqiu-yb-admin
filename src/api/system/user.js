@@ -32,7 +32,7 @@ export function updateUser(data) {
 // 删除用户
 export function delUser(userId) {
   return request({
-    url: '/system/api/sys-user/' + userId, method: 'delete'
+    url: '/system/api/sys-user/' + userId, method: 'post'
   })
 }
 

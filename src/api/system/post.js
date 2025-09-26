@@ -31,6 +31,6 @@ export function updatePost(data) {
 // 删除岗位
 export function delPost(postId) {
   return request({
-    url: '/system/api/sys-post/' + postId, method: 'delete'
+    url: '/system/api/sys-post/' + postId, method: 'post'
   })
 }
