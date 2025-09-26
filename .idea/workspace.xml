@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/src/views/biz/member/member_vip_level/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/member/member_vip_level/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env.test" beforeDir="false" afterPath="$PROJECT_DIR$/.env.test" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,7 +38,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "dev",
+    "git-widget-placeholder": "test",
     "last_opened_file_path": "/Users/J/GS/HQ/yb/huanqiu-yb-admin/src/views/biz/member/member_vip_level",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -80,7 +80,7 @@
       <option name="presentableId" value="Default" />
       <updated>1758511518166</updated>
       <workItem from="1758511519470" duration="14737000" />
-      <workItem from="1758787548099" duration="11827000" />
+      <workItem from="1758787548099" duration="12015000" />
     </task>
     <servers />
   </component>
