@@ -57,33 +57,36 @@
     <el-table v-loading="loading" :data="memberVipLevelList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="等级名称" align="center" prop="name"/>
+      <el-table-column label="等级值" align="center" prop="vip"/>
       <el-table-column label="会员数量" align="center" prop="memberCount"/>
       <el-table-column label="存款金额" align="center" prop="depositAmount">
         <template slot-scope="scope">
-          <span>{{ scope.row.depositAmount ? '¥' + scope.row.depositAmount : '-' }}</span>
+          <span style="color: #8B4513;">{{ scope.row.depositAmount }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="升级彩金奖励" align="center" prop="upgradeBonus">
-        <template slot-scope="scope">
-          <span>{{ scope.row.upgradeBonus ? '¥' + scope.row.upgradeBonus : '-' }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column label="升级彩金奖励" align="center" width="120" prop="upgradeBonus"/>
+      <el-table-column label="升级彩金打码倍数" align="center" width="130" prop="upgradeBonusMultiple"/>
       <el-table-column label="周俸禄" align="center" prop="weekBonus">
         <template slot-scope="scope">
-          <span>{{ scope.row.weekBonus ? '¥' + scope.row.weekBonus : '-' }}</span>
+          <span style="color: #8B4513;">{{ scope.row.weekBonus }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="周俸禄所需充值" align="center" width="120" prop="weekBonusNeedRecharge"/>
+      <el-table-column label="周俸禄打码倍数" align="center" width="120" prop="weekBonusMultiple"/>
       <el-table-column label="月俸禄" align="center" prop="monthBonus">
         <template slot-scope="scope">
-          <span>{{ scope.row.monthBonus ? '¥' + scope.row.monthBonus : '-' }}</span>
+          <span style="color: #8B4513;">{{ scope.row.monthBonus }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime">
+      <el-table-column label="月俸禄所需充值" align="center" width="120" prop="monthBonusNeedRecharge"/>
+      <el-table-column label="月俸禄打码倍数" align="center" width="120" prop="monthBonusMultiple"/>
+      <el-table-column label="备注" align="center" show-overflow-tooltip prop="remark"/>
+      <el-table-column label="创建时间" align="center" width="160" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" width="120" class-name="small-padding fixed-width" fixed="right">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -115,11 +118,17 @@
 
     <!-- 添加或修改用户等级对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="130px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="140px">
         <el-row :gutter="20">
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="等级名称" prop="name">
               <el-input v-model="form.name" placeholder="请输入等级名称"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="等级值" prop="vip">
+              <el-input-number v-model="form.vip" :min="1" style="width: 100%"
+                               placeholder="请输入等级值"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -140,7 +149,7 @@
         <el-row :gutter="20">
           <el-col :span="24">
             <el-form-item label="升级彩金打码倍数" prop="upgradeBonusMultiple">
-              <el-input-number v-model="form.upgradeBonusMultiple" :min="0" :precision="2" style="width: 100%"
+              <el-input-number v-model="form.upgradeBonusMultiple" :min="1" :precision="2" style="width: 100%"
                                placeholder="请输入打码倍数"/>
             </el-form-item>
           </el-col>
@@ -176,13 +185,13 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="周俸禄打码倍数" prop="weekBonusMultiple">
-              <el-input-number v-model="form.weekBonusMultiple" :min="0" :precision="2" style="width: 100%"
+              <el-input-number v-model="form.weekBonusMultiple" :min="1" :precision="2" style="width: 100%"
                                placeholder="请输入打码倍数"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="月俸禄打码倍数" prop="monthBonusMultiple">
-              <el-input-number v-model="form.monthBonusMultiple" :min="0" :precision="2" style="width: 100%"
+              <el-input-number v-model="form.monthBonusMultiple" :min="1" :precision="2" style="width: 100%"
                                placeholder="请输入打码倍数"/>
             </el-form-item>
           </el-col>
@@ -246,6 +255,36 @@ export default {
       rules: {
         name: [
           {required: true, message: "等级名称不能为空", trigger: "blur"}
+        ],
+        vip: [
+          {required: true, message: "等级值不能为空", trigger: "blur"}
+        ],
+        depositAmount: [
+          {required: true, message: "存款金额不能为空", trigger: "blur"}
+        ],
+        upgradeBonus: [
+          {required: true, message: "升级彩金奖励不能为空", trigger: "blur"}
+        ],
+        upgradeBonusMultiple: [
+          {required: true, message: "升级彩金打码倍数不能为空", trigger: "blur"}
+        ],
+        weekBonus: [
+          {required: true, message: "周俸禄不能为空", trigger: "blur"}
+        ],
+        weekBonusNeedRecharge: [
+          {required: true, message: "周俸禄所需充值不能为空", trigger: "blur"}
+        ],
+        weekBonusMultiple: [
+          {required: true, message: "周俸禄打码倍数不能为空", trigger: "blur"}
+        ],
+        monthBonus: [
+          {required: true, message: "月俸禄不能为空", trigger: "blur"}
+        ],
+        monthBonusNeedRecharge: [
+          {required: true, message: "月俸禄所需充值不能为空", trigger: "blur"}
+        ],
+        monthBonusMultiple: [
+          {required: true, message: "月俸禄打码倍数不能为空", trigger: "blur"}
         ]
       }
     };
@@ -277,16 +316,17 @@ export default {
       this.form = {
         id: undefined,
         name: undefined,
-        memberCount: undefined,
-        depositAmount: undefined,
-        upgradeBonus: undefined,
-        upgradeBonusMultiple: undefined,
-        weekBonus: undefined,
-        weekBonusNeedRecharge: undefined,
-        weekBonusMultiple: undefined,
-        monthBonus: undefined,
-        monthBonusNeedRecharge: undefined,
-        monthBonusMultiple: undefined,
+        vip: 1,
+        memberCount: 0,
+        depositAmount: 0,
+        upgradeBonus: 0,
+        upgradeBonusMultiple: 1,
+        weekBonus: 0,
+        weekBonusNeedRecharge: 0,
+        weekBonusMultiple: 1,
+        monthBonus: 0,
+        monthBonusNeedRecharge: 0,
+        monthBonusMultiple: 1,
         remark: undefined
       };
       this.resetForm("form");
