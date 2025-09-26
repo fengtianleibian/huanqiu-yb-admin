@@ -1,38 +1,29 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="80px">
-      <el-form-item label="用户ID" prop="memberId">
+
+    <!--搜索-->
+    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
+      <el-form-item label="名称" prop="name">
         <el-input
-          v-model="queryParams.memberId"
-          placeholder="请输入用户ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="用户名" prop="memberName">
-        <el-input
-          v-model="queryParams.memberName"
-          placeholder="请输入用户名"
+          v-model="queryParams.name"
+          placeholder="请输入名称"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-          <el-option label="成功" value="0"/>
-          <el-option label="失败" value="1"/>
+        <el-select v-model="queryParams.status" placeholder="请选状态" clearable size="small">
+          <el-option label="正常" :value="0"/>
+          <el-option label="停用" :value="1"/>
         </el-select>
       </el-form-item>
-      <el-form-item label="登录时间">
-        <el-date-picker
-          v-model="dateRange"
-          style="width: 240px"
-          value-format="yyyy-MM-dd"
-          type="daterange"
-          range-separator="-"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        ></el-date-picker>
+      <el-form-item label="创建时间" prop="createTime">
+        <el-date-picker v-model="dateRange"
+                        style="width: 207px"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        type="daterange"
+                        range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期"
+                        :default-time="['00:00:00', '23:59:59']"/>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -40,7 +31,19 @@
       </el-form-item>
     </el-form>
 
+    <!--操作-->
     <el-row :gutter="10" class="mb8">
+      <el-col :span="1.5">
+        <el-button
+          type="primary"
+          plain
+          icon="el-icon-plus"
+          size="mini"
+          @click="handleAdd"
+          v-hasPermi="['carousel:add']"
+        >新增
+        </el-button>
+      </el-col>
       <el-col :span="1.5">
         <el-button
           type="danger"
@@ -49,49 +52,49 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['member_login_log:remove']"
+          v-hasPermi="['carousel:remove']"
         >删除
         </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="memberLoginLogList" @selection-change="handleSelectionChange">
+    <!--表单-->
+    <el-table v-loading="loading" :data="carouselList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="用户ID" align="center" prop="memberId"/>
-      <el-table-column label="用户名" align="center" prop="memberName"/>
-      <el-table-column label="登录IP" align="center" prop="loginIp"/>
-      <el-table-column label="登录地点" align="center" prop="loginLocation" show-overflow-tooltip/>
-      <el-table-column label="浏览器类型" align="center" prop="browser"/>
-      <el-table-column label="操作系统" align="center" prop="os"/>
-      <el-table-column label="设备类型" align="center" prop="deviceType"/>
-      <el-table-column label="域名" align="center" prop="domain" show-overflow-tooltip width="160"/>
-      <el-table-column label="状态" align="center" prop="status">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.status === 0" type="success">成功</el-tag>
-          <el-tag v-else type="danger">失败</el-tag>
+      <el-table-column label="名称" align="center" prop="name" :show-overflow-tooltip="true"/>
+      <el-table-column label="图片" align="center" prop="url">
+        <template v-slot="scope">
+          <el-image style="width: 120px; height: 60px" :src="scope.row.url"></el-image>
         </template>
       </el-table-column>
-      <el-table-column label="失败原因" align="center" prop="failRemark" show-overflow-tooltip/>
-      <el-table-column label="登录时间" align="center" prop="createTime" width="160">
+      <el-table-column label="显示区域" align="center" prop="area">
+        <template v-slot="scope">
+          <span v-if="scope.row.area === 1">首页</span>
+          <span v-if="scope.row.area === 2">商城</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="状态" align="center" prop="status">
+        <template v-slot="scope">
+          <span v-if="scope.row.status === 0"><el-tag type="success">正常</el-tag></span>
+          <span v-if="scope.row.status === 1"><el-tag type="danger">停用</el-tag></span>
+        </template>
+      </el-table-column>
+      <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="100" fixed="right">
-        <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['member_login_log:remove']"
-          >删除
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width"
+      >
+        <template v-slot="scope">
+          <el-button size="mini" type="text" @click="handleUpdate(scope.row)"
+                     v-hasPermi="['carousel:edit']">
+            <el-tag type="info">编辑</el-tag>
           </el-button>
         </template>
       </el-table-column>
     </el-table>
-
     <pagination
       v-show="total>0"
       :total="total"
@@ -99,53 +102,155 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
+
+    <!-- 添加或修改轮播图对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="名称" prop="name">
+              <el-input v-model="form.name" placeholder="请输入名称"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="显示区域" prop="area">
+              <el-select v-model="form.area" placeholder="请选择状态" clearable style="width: 100%">
+                <el-option label="首页" :value="1"/>
+                <el-option label="商城" :value="2"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="状态" prop="status">
+              <el-select v-model="form.status" placeholder="请选择状态" clearable style="width: 100%">
+                <el-option label="正常" :value="0"/>
+                <el-option label="停用" :value="1"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label="轮播图" prop="url">
+              <el-upload class="upload-demo" drag :action=uploadUrl :headers="headers" :on-success="handleAvatarSuccess"
+                         :on-remove="handlerRemover" :on-change="handlerChange" :before-upload="handlerBeforeUpload"
+                         multiple>
+                <i class="el-icon-upload"></i>
+                <div class="el-upload__text">拖拽文件上传<em>点击上传</em></div>
+                <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过1024kb</div>
+              </el-upload>
+              <img v-if="form.url" :src="form.url" style="width: 100px;height: 50px;">
+              <i class="el-icon-circle-close" v-if="form.url && isImg" @click="delUrlFun"
+                 style="position: absolute"></i>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import {listMemberLoginLog, delMemberLoginLog} from "@/api/biz/member";
+import {addCarousel, delCarousel, listCarousel, updateCarousel, info} from "@/api/biz/carousel";
+import {getToken} from "@/utils/auth";
 
 export default {
-  name: "MemberLoginLog",
+  name: "Carousel",
   data() {
     return {
       // 遮罩层
       loading: true,
       // 选中数组
       ids: [],
+      // 非单个禁用
+      single: true,
       // 非多个禁用
       multiple: true,
       // 显示搜索条件
       showSearch: true,
       // 总条数
       total: 0,
-      // 用户登录日志表格数据
-      memberLoginLogList: [],
-      // 日期范围
-      dateRange: [],
+      // 岗位表格数据
+      carouselList: [],
+      // 弹出层标题
+      title: "",
+      // 是否显示弹出层
+      open: false,
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        memberId: undefined,
-        memberName: undefined,
+        id: undefined,
+        name: undefined,
         status: undefined,
-        beginTime: undefined,
-        endTime: undefined
+        createTime: [],
+      },
+      // 日期范围
+      dateRange: [],
+      //上次组件
+      uploadUrl: process.env.VUE_APP_BASE_API + 'system/api/carousel/upload',
+      isLock: false,
+      isImg: true,
+      // 表单参数
+      form: {
+        id: undefined,
+        name: undefined,
+        status: undefined,
+        area: undefined,
+        url: undefined
+      },
+      // 表单校验
+      rules: {
+        name: [
+          {required: true, message: "名称不能为空", trigger: "blur"}
+        ],
+        url: [
+          {required: true, message: "图片不能为空", trigger: "blur"}
+        ],
+        area: [
+          {required: true, message: "显示区域不能为空", trigger: "change"}
+        ],
+        status: [
+          {required: true, message: "状态不能为空", trigger: "change"}
+        ]
       }
     };
   },
   created() {
     this.getList();
   },
+  computed: {
+    headers() {
+      const token = getToken();
+      return {
+        Token: token
+      };
+    },
+  },
   methods: {
-    /** 查询用户登录日志列表 */
+    /** 查询岗位列表 */
     getList() {
       this.loading = true;
-      this.addDateRange();
-      listMemberLoginLog(this.queryParams).then(response => {
+      if (this.dateRange && this.dateRange.length === 2) {
+        this.queryParams.beginTime = this.dateRange[0];
+        this.queryParams.endTime = this.dateRange[1];
+      } else {
+        this.queryParams.beginTime = undefined;
+        this.queryParams.endTime = undefined;
+      }
+      listCarousel(this.queryParams).then(response => {
         if (response.code === 200) {
-          this.memberLoginLogList = response.content.list;
+          this.carouselList = response.content.list;
           this.total = response.content.total;
           this.loading = false;
         } else {
@@ -153,6 +258,7 @@ export default {
         }
       });
     },
+
     /** 搜索按钮操作 */
     handleQuery() {
       this.queryParams.pageNum = 1;
@@ -161,21 +267,139 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.dateRange = [];
-      this.queryParams.beginTime = undefined;
-      this.queryParams.endTime = undefined;
       this.resetForm("queryForm");
       this.handleQuery();
     },
+
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.id);
-      this.multiple = !selection.length;
+      this.ids = selection.map(item => item.id)
+      this.single = selection.length != 1
+      this.multiple = !selection.length
     },
+
+    /** 新增按钮操作 */
+    handleAdd() {
+      this.reset();
+      this.isLock = false
+      this.open = true;
+      this.title = "添加轮播图";
+    },
+
+    /** 修改按钮操作 */
+    handleUpdate(row) {
+      this.reset();
+      this.isLock = false
+
+      info(row.id).then(response => {
+        if (response.code === 200) {
+          this.form = response.content;
+          this.title = "编辑轮播图";
+          this.open = true;
+        } else {
+          this.$modal.msgError(response.message);
+        }
+      });
+    },
+
+    // 表单重置
+    reset() {
+      this.form = {
+        id: undefined,
+        name: undefined,
+        status: undefined,
+        url: undefined
+      };
+      this.resetForm("form");
+    },
+
+
+    // 取消按钮
+    cancel() {
+      this.open = false;
+      this.reset();
+    },
+
+    /** 提交按钮 */
+    submitForm: function () {
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          if (this.form.id !== undefined) {
+            updateCarousel(this.form).then(response => {
+              if (response.code === 200) {
+                this.$modal.msgSuccess("修改成功");
+                this.open = false;
+                this.getList();
+              } else {
+                this.$modal.msgError(response.message);
+              }
+            });
+          } else {
+            addCarousel(this.form).then(response => {
+              if (response.code === 200) {
+                this.$modal.msgSuccess("新增成功");
+                this.open = false;
+                this.getList();
+              } else {
+                this.$modal.msgError(response.message);
+              }
+            });
+          }
+        }
+      });
+    },
+
+
+    // 图片上传之前
+    handlerBeforeUpload(file) {
+      var img = file.name.substring(file.name.lastIndexOf('.') + 1)
+      const suffix = img === 'jpg'
+      const suffix2 = img === 'png'
+      const suffix3 = img === 'jpeg'
+      const isLt1M = file.size / 1024 / 1024 < 10;
+      if (!suffix && !suffix2 && !suffix3) {
+        this.$message.error("只能上传图片");
+        return false
+      }
+      if (!isLt1M) {
+        this.$message.error("上传图片大小1兆");
+        return false
+      }
+      this.isLock = true
+      this.isImg = false
+      return suffix || suffix2 || suffix3
+    },
+    // 上传成功
+    handleAvatarSuccess(res, file) {
+      if (res.code === 200) {
+        this.form.url = res.content;
+        this.$refs.form.validateField('url')
+        this.isLock = false
+      } else {
+        this.msgError(res.message)
+      }
+    },
+    // 删除文件列表时执行的钩子
+    handlerRemover(res, file) {
+      this.form.url = undefined
+      this.$refs.form.validateField('url')
+    },
+    // 文件列表改变时执行的钩子
+    handlerChange(res, file) {
+      if (file.length > 1) {
+        file.splice(0, 1)
+      }
+    },
+    //   删除图片
+    delUrlFun() {
+      this.form.url = undefined
+    },
+
     /** 删除按钮操作 */
     handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除用户登录日志编号为"' + ids + '"的数据项？').then(function () {
-        return delMemberLoginLog(ids);
+      const carouselIds = row.id || this.ids;
+      this.$modal.confirm('是否确认删除编号为"' + carouselIds + '"的数据项？').then(function () {
+        return delCarousel(carouselIds);
       }).then(response => {
         if (response.code === 200) {
           this.getList();
@@ -187,13 +411,6 @@ export default {
         this.$modal.msgError(response.message);
       });
     },
-    /** 添加日期范围 */
-    addDateRange() {
-      if (this.dateRange != null && this.dateRange.length === 2) {
-        this.queryParams.beginTime = this.dateRange[0];
-        this.queryParams.endTime = this.dateRange[1];
-      }
-    }
   }
 };
 </script>
