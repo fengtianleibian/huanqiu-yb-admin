@@ -270,6 +270,32 @@ export default {
         ],
         sort: [
           {required: true, message: "排序不能为空", trigger: "blur"}
+        ],
+        beginTime: [
+          {required: true, message: "开始时间不能为空", trigger: "change"},
+          {
+            validator: (rule, value, callback) => {
+              if (value && this.form.endTime && new Date(value) >= new Date(this.form.endTime)) {
+                callback(new Error('开始时间必须早于结束时间'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'change'
+          }
+        ],
+        endTime: [
+          {required: true, message: "结束时间不能为空", trigger: "change"},
+          {
+            validator: (rule, value, callback) => {
+              if (value && this.form.beginTime && new Date(value) <= new Date(this.form.beginTime)) {
+                callback(new Error('结束时间必须晚于开始时间'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'change'
+          }
         ]
       }
     };
