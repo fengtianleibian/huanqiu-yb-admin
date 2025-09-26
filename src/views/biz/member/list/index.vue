@@ -44,7 +44,7 @@
 
     <el-table v-loading="loading" :data="memberList">
       <el-table-column label="用户ID" align="center" prop="id" width="120"/>
-      <el-table-column label="用户名" align="center" prop="memberName">
+      <el-table-column label="用户名" align="center" prop="memberName" width="120">
         <template slot-scope="scope">
           <div>
             <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -140,7 +140,7 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-    
+
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="100" fixed="right">
         <template slot-scope="scope">
           <el-button
