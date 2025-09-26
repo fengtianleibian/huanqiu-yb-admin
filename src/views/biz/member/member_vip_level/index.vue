@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="IP地址" prop="ip">
+      <el-form-item label="等级名称" prop="name">
         <el-input
-          v-model="queryParams.ip"
-          placeholder="请输入IP地址"
+          v-model="queryParams.name"
+          placeholder="请输入等级名称"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -23,7 +23,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['ip_whitelist:add']"
+          v-hasPermi="['member_vip_level:add']"
         >新增
         </el-button>
       </el-col>
@@ -35,7 +35,7 @@
           size="mini"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['ip_whitelist:edit']"
+          v-hasPermi="['member_vip_level:edit']"
         >修改
         </el-button>
       </el-col>
@@ -47,36 +47,40 @@
           size="mini"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['ip_whitelist:remove']"
+          v-hasPermi="['member_vip_level:remove']"
         >删除
-        </el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="el-icon-refresh"
-          size="mini"
-          @click="handleRefreshCache"
-          v-hasPermi="['ip_whitelist:remove']"
-        >刷新缓存
         </el-button>
       </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="ipWhitelistList" @selection-change="handleSelectionChange">
+    <el-table v-loading="loading" :data="memberVipLevelList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="ID" align="center" prop="id"/>
-      <el-table-column label="IP地址" align="center" prop="ip"/>
+      <el-table-column label="等级名称" align="center" prop="name"/>
+      <el-table-column label="会员数量" align="center" prop="memberCount"/>
+      <el-table-column label="存款金额" align="center" prop="depositAmount">
+        <template slot-scope="scope">
+          <span>{{ scope.row.depositAmount ? '¥' + scope.row.depositAmount : '-' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="升级彩金奖励" align="center" prop="upgradeBonus">
+        <template slot-scope="scope">
+          <span>{{ scope.row.upgradeBonus ? '¥' + scope.row.upgradeBonus : '-' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="周俸禄" align="center" prop="weekBonus">
+        <template slot-scope="scope">
+          <span>{{ scope.row.weekBonus ? '¥' + scope.row.weekBonus : '-' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="月俸禄" align="center" prop="monthBonus">
+        <template slot-scope="scope">
+          <span>{{ scope.row.monthBonus ? '¥' + scope.row.monthBonus : '-' }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="更新时间" align="center" prop="updateTime">
-        <template slot-scope="scope">
-          <span>{{ parseTime(scope.row.updateTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -86,7 +90,7 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['ip_whitelist:edit']"
+            v-hasPermi="['member_vip_level:edit']"
           >修改
           </el-button>
           <el-button
@@ -94,7 +98,7 @@
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['ip_whitelist:remove']"
+            v-hasPermi="['member_vip_level:remove']"
           >删除
           </el-button>
         </template>
@@ -109,12 +113,87 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改IP白名单对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="IP地址" prop="ip">
-          <el-input v-model="form.ip" placeholder="请输入IP地址"/>
-        </el-form-item>
+    <!-- 添加或修改用户等级对话框 -->
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="130px">
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item label="等级名称" prop="name">
+              <el-input v-model="form.name" placeholder="请输入等级名称"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="存款金额" prop="depositAmount">
+              <el-input-number v-model="form.depositAmount" :min="0" :precision="2" style="width: 100%"
+                               placeholder="请输入存款金额"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="升级彩金奖励" prop="upgradeBonus">
+              <el-input-number v-model="form.upgradeBonus" :min="0" :precision="2" style="width: 100%"
+                               placeholder="请输入升级彩金奖励"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item label="升级彩金打码倍数" prop="upgradeBonusMultiple">
+              <el-input-number v-model="form.upgradeBonusMultiple" :min="0" :precision="2" style="width: 100%"
+                               placeholder="请输入打码倍数"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="周俸禄" prop="weekBonus">
+              <el-input-number v-model="form.weekBonus" :min="0" :precision="2" style="width: 100%"
+                               placeholder="请输入周俸禄"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="月俸禄" prop="monthBonus">
+              <el-input-number v-model="form.monthBonus" :min="0" :precision="2" style="width: 100%"
+                               placeholder="请输入月俸禄"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="周俸禄所需充值" prop="weekBonusNeedRecharge">
+              <el-input-number v-model="form.weekBonusNeedRecharge" :min="0" :precision="2" style="width: 100%"
+                               placeholder="请输入所需充值"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="月俸禄所需充值" prop="monthBonusNeedRecharge">
+              <el-input-number v-model="form.monthBonusNeedRecharge" :min="0" :precision="2" style="width: 100%"
+                               placeholder="请输入所需充值"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="周俸禄打码倍数" prop="weekBonusMultiple">
+              <el-input-number v-model="form.weekBonusMultiple" :min="0" :precision="2" style="width: 100%"
+                               placeholder="请输入打码倍数"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="月俸禄打码倍数" prop="monthBonusMultiple">
+              <el-input-number v-model="form.monthBonusMultiple" :min="0" :precision="2" style="width: 100%"
+                               placeholder="请输入打码倍数"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item label="备注" prop="remark">
+              <el-input type="textarea" :rows="3" v-model="form.remark" placeholder="请输入备注"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -126,16 +205,15 @@
 
 <script>
 import {
-  listIpWhitelist,
-  getIpWhitelist,
-  delIpWhitelist,
-  addIpWhitelist,
-  updateIpWhitelist,
-  refreshCache
-} from "@/api/system/ip_whitelist";
+  listMemberVipLevel,
+  getMemberVipLevel,
+  delMemberVipLevel,
+  addMemberVipLevel,
+  updateMemberVipLevel
+} from "@/api/biz/member_vip_level";
 
 export default {
-  name: "IpWhitelist",
+  name: "MemberVipLevel",
   data() {
     return {
       // 遮罩层
@@ -150,8 +228,8 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // IP白名单表格数据
-      ipWhitelistList: [],
+      // 用户等级表格数据
+      memberVipLevelList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -160,15 +238,14 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        ip: undefined
+        name: undefined
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        ip: [
-          {required: true, message: "IP地址不能为空", trigger: "blur"},
-          {pattern: /^(\d{1,3}\.){3}\d{1,3}$/, message: "请输入正确的IP地址格式", trigger: "blur"}
+        name: [
+          {required: true, message: "等级名称不能为空", trigger: "blur"}
         ]
       }
     };
@@ -177,12 +254,12 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询IP白名单列表 */
+    /** 查询用户等级列表 */
     getList() {
       this.loading = true;
-      listIpWhitelist(this.queryParams).then(response => {
+      listMemberVipLevel(this.queryParams).then(response => {
         if (response.code === 200) {
-          this.ipWhitelistList = response.content.list;
+          this.memberVipLevelList = response.content.list;
           this.total = response.content.total;
           this.loading = false;
         } else {
@@ -199,7 +276,18 @@ export default {
     reset() {
       this.form = {
         id: undefined,
-        ip: undefined
+        name: undefined,
+        memberCount: undefined,
+        depositAmount: undefined,
+        upgradeBonus: undefined,
+        upgradeBonusMultiple: undefined,
+        weekBonus: undefined,
+        weekBonusNeedRecharge: undefined,
+        weekBonusMultiple: undefined,
+        monthBonus: undefined,
+        monthBonusNeedRecharge: undefined,
+        monthBonusMultiple: undefined,
+        remark: undefined
       };
       this.resetForm("form");
     },
@@ -223,17 +311,17 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加IP白名单";
+      this.title = "添加用户等级";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
       const id = row.id || this.ids
-      getIpWhitelist(id).then(response => {
+      getMemberVipLevel(id).then(response => {
         if (response.code === 200) {
           this.form = response.content;
           this.open = true;
-          this.title = "修改IP白名单";
+          this.title = "修改用户等级";
         } else {
           this.$modal.msgError(response.message);
         }
@@ -244,7 +332,7 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.id != undefined) {
-            updateIpWhitelist(this.form).then(response => {
+            updateMemberVipLevel(this.form).then(response => {
               if (response.code === 200) {
                 this.$modal.msgSuccess("修改成功");
                 this.open = false;
@@ -254,7 +342,7 @@ export default {
               }
             });
           } else {
-            addIpWhitelist(this.form).then(response => {
+            addMemberVipLevel(this.form).then(response => {
               if (response.code === 200) {
                 this.$modal.msgSuccess("新增成功");
                 this.open = false;
@@ -270,26 +358,12 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除IP白名单编号为"' + ids + '"的数据项？').then(function () {
-        return delIpWhitelist(ids);
+      this.$modal.confirm('是否确认删除用户等级编号为"' + ids + '"的数据项？').then(function () {
+        return delMemberVipLevel(ids);
       }).then(response => {
         if (response.code === 200) {
           this.getList();
           this.$modal.msgSuccess("删除成功");
-        } else {
-          this.$modal.msgError(response.message);
-        }
-      }).catch(() => {
-        this.$modal.msgError(response.message);
-      });
-    },
-    /** 刷新缓存按钮操作 */
-    handleRefreshCache() {
-      this.$modal.confirm('是否确认刷新IP白名单缓存？').then(function () {
-        return refreshCache();
-      }).then(response => {
-        if (response.code === 200) {
-          this.$modal.msgSuccess("刷新缓存成功");
         } else {
           this.$modal.msgError(response.message);
         }
