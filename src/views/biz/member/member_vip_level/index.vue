@@ -122,13 +122,13 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="等级名称" prop="name">
-              <el-input v-model="form.name" placeholder="请输入等级名称"/>
+              <el-input v-model="form.name" placeholder="请输入等级名称" :readonly="form.id != undefined"/>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="等级值" prop="vip">
               <el-input-number v-model="form.vip" :min="1" style="width: 100%"
-                               placeholder="请输入等级值"/>
+                               placeholder="请输入等级值" :disabled="form.id != undefined"/>
             </el-form-item>
           </el-col>
         </el-row>
