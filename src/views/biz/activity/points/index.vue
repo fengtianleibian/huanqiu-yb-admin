@@ -28,83 +28,127 @@
           v-for="activity in activityList" 
           :key="activity.id" 
           class="activity-card"
+          :class="{ 'disabled': activity.status === 0 }"
         >
-          <!-- 活动类型标识 -->
-          <div class="activity-type-badge" :class="getActivityTypeClass(activity.type)">
-            {{ getActivityTypeName(activity.type) }}
+          <!-- 卡片头部 -->
+          <div class="card-header">
+            <div class="header-left">
+              <div class="activity-icon" :class="getActivityTypeClass(activity.type)">
+                <i :class="getActivityIcon(activity.type)"></i>
+              </div>
+              <div class="activity-info">
+                <h3 class="activity-title">{{ activity.name || getDefaultActivityName(activity.type) }}</h3>
+              </div>
+            </div>
+            <div class="header-right">
+              <div class="status-toggle">
+                <el-switch
+                  v-model="activity.status"
+                  :active-value="1"
+                  :inactive-value="0"
+                  active-text="启用"
+                  inactive-text="禁用"
+                  @change="handleStatusChange(activity)"
+                  active-color="#13ce66"
+                  inactive-color="#ff4949"
+                />
+              </div>
+            </div>
           </div>
 
-          <!-- 活动内容 -->
-          <div class="activity-content">
-            <div class="activity-header">
-              <h3>{{ activity.name || getDefaultActivityName(activity.type) }}</h3>
-              <el-switch
-                v-model="activity.status"
-                :active-value="1"
-                :inactive-value="0"
-                active-text="启用"
-                inactive-text="禁用"
-                @change="handleStatusChange(activity)"
-              />
-            </div>
-
-            <div class="activity-details">
-              <!-- 积分兑换奖金活动详情 -->
-              <div v-if="activity.type === 1" class="exchange-details">
-                <div class="detail-row">
-                  <span class="label">兑换比例:</span>
-                  <span class="value">{{ activity.exchangeRatio || 1 }}:1</span>
+          <!-- 卡片内容 -->
+          <div class="card-content">
+            <!-- 积分兑换奖金活动详情 -->
+            <div v-if="activity.type === 1" class="config-grid">
+              <div class="config-item">
+                <div class="config-icon exchange-icon">
+                  <i class="el-icon-money"></i>
                 </div>
-                <div class="detail-row">
-                  <span class="label">最小兑换:</span>
-                  <span class="value">{{ activity.minAmount || '100' }} 积分</span>
-                </div>
-                <div class="detail-row">
-                  <span class="label">最大兑换:</span>
-                  <span class="value">{{ activity.maxAmount || '10000' }} 积分</span>
-                </div>
-                <div class="detail-row">
-                  <span class="label">打码倍数:</span>
-                  <span class="value">{{ activity.wageringMultiplier || '0' }}</span>
+                <div class="config-info">
+                  <div class="config-label">兑换比例</div>
+                  <div class="config-value">{{ activity.exchangeRatio || 1 }}:1</div>
                 </div>
               </div>
-
-              <!-- 积分抽奖活动详情 -->
-              <div v-if="activity.type === 2" class="lottery-details">
-                <div class="detail-row">
-                  <span class="label">抽奖消耗:</span>
-                  <span class="value">{{ activity.costPoints || '100' }} 积分/次</span>
+              <div class="config-item">
+                <div class="config-icon amount-icon">
+                  <i class="el-icon-coin"></i>
                 </div>
-                <div class="detail-row">
-                  <span class="label">奖品数量:</span>
-                  <span class="value">{{ getPrizesCount(activity.prizes) }} 个</span>
-                </div>
-                <div class="detail-row">
-                  <span class="label">奖品类型:</span>
-                  <span class="value">积分奖品</span>
+                <div class="config-info">
+                  <div class="config-label">最小兑换</div>
+                  <div class="config-value">{{ activity.minAmount || '100' }} 积分</div>
                 </div>
               </div>
-
-              <!-- 通用信息 -->
-              <div class="common-details">
-                <div class="detail-row">
-                  <span class="label">创建时间:</span>
-                  <span class="value">{{ parseTime(activity.createTime) }}</span>
+              <div class="config-item">
+                <div class="config-icon amount-icon">
+                  <i class="el-icon-coin"></i>
                 </div>
-                <div class="detail-row">
-                  <span class="label">更新时间:</span>
-                  <span class="value">{{ parseTime(activity.updateTime) }}</span>
+                <div class="config-info">
+                  <div class="config-label">最大兑换</div>
+                  <div class="config-value">{{ activity.maxAmount || '10000' }} 积分</div>
+                </div>
+              </div>
+              <div class="config-item">
+                <div class="config-icon multiplier-icon">
+                  <i class="el-icon-refresh"></i>
+                </div>
+                <div class="config-info">
+                  <div class="config-label">打码倍数</div>
+                  <div class="config-value">{{ activity.wageringMultiplier || '0' }}</div>
                 </div>
               </div>
             </div>
 
-            <!-- 操作按钮 -->
-            <div class="activity-actions">
+            <!-- 积分抽奖活动详情 -->
+            <div v-if="activity.type === 2" class="config-grid">
+              <div class="config-item">
+                <div class="config-icon lottery-icon">
+                  <i class="el-icon-present"></i>
+                </div>
+                <div class="config-info">
+                  <div class="config-label">抽奖消耗</div>
+                  <div class="config-value">{{ activity.costPoints || '100' }} 积分/次</div>
+                </div>
+              </div>
+              <div class="config-item">
+                <div class="config-icon gift-icon">
+                  <i class="el-icon-gift"></i>
+                </div>
+                <div class="config-info">
+                  <div class="config-label">奖品数量</div>
+                  <div class="config-value">{{ getPrizesCount(activity.prizes) }} 个</div>
+                </div>
+              </div>
+              <div class="config-item">
+                <div class="config-icon type-icon">
+                  <i class="el-icon-collection-tag"></i>
+                </div>
+                <div class="config-info">
+                  <div class="config-label">奖品类型</div>
+                  <div class="config-value">积分奖品</div>
+                </div>
+              </div>
+              <div class="config-item">
+                <div class="config-icon probability-icon">
+                  <i class="el-icon-pie-chart"></i>
+                </div>
+                <div class="config-info">
+                  <div class="config-label">总概率</div>
+                  <div class="config-value">100%</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 卡片底部操作 -->
+          <div class="card-footer">
+            <div class="footer-actions">
               <el-button
                 type="primary"
                 size="small"
                 icon="el-icon-edit"
                 @click="handleEdit(activity)"
+                class="action-btn edit-btn"
               >
                 编辑配置
               </el-button>
@@ -113,11 +157,15 @@
                 size="small"
                 icon="el-icon-view"
                 @click="handleViewDetails(activity)"
+                class="action-btn detail-btn"
               >
                 查看详情
               </el-button>
             </div>
           </div>
+
+          <!-- 卡片装饰效果 -->
+          <div class="card-decoration" :class="getActivityTypeClass(activity.type)"></div>
         </div>
       </div>
     </div>
@@ -464,7 +512,8 @@ export default {
       
       listActivityPoints().then(response => {
         if (response.code === 200) {
-          this.activityList = response.data || [];
+          // 修复：API返回的数据在content字段中，不是data字段
+          this.activityList = response.content || [];
           this.loading = false;
         } else {
           this.$modal.msgError(response.message);
@@ -493,6 +542,16 @@ export default {
       return classMap[type] || 'type-default';
     },
 
+    /** 获取活动图标 */
+    getActivityIcon(type) {
+      const iconMap = {
+        1: 'el-icon-money',
+        2: 'el-icon-present'
+      };
+      return iconMap[type] || 'el-icon-star-on';
+    },
+
+
     /** 获取默认活动名称 */
     getDefaultActivityName(type) {
       const nameMap = {
@@ -512,7 +571,7 @@ export default {
             this.$modal.msgSuccess(`${statusText}成功`);
             this.getList();
           } else {
-            this.$modal.msgError(response.message);
+            this.$modal.msgError(response.message || response.msg);
             // 恢复原状态
             activity.status = activity.status === 1 ? 0 : 1;
           }
@@ -545,7 +604,8 @@ export default {
       // 获取完整的活动信息
       getActivityPoints(activity.id).then(response => {
         if (response.code === 200) {
-          this.form = response.data;
+          // 修复：API返回的数据在content字段中，不是data字段
+          this.form = response.content;
           // 如果prizes是字符串，需要解析为数组
           if (this.form.prizes && typeof this.form.prizes === 'string') {
             try {
@@ -722,7 +782,7 @@ export default {
                 this.open = false;
                 this.getList();
               } else {
-                this.$modal.msgError(response.message);
+                this.$modal.msgError(response.message || response.msg);
               }
             }).catch(() => {
               this.submitting = false;
@@ -736,7 +796,7 @@ export default {
                 this.open = false;
                 this.getList();
               } else {
-                this.$modal.msgError(response.message);
+                this.$modal.msgError(response.message || response.msg);
               }
             }).catch(() => {
               this.submitting = false;
@@ -792,129 +852,387 @@ export default {
 
 .activity-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+  gap: 24px;
+  margin-top: 24px;
 }
 
 .activity-card {
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.06);
   
   &:hover {
-    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    border-color: rgba(64, 158, 255, 0.2);
+  }
+  
+  &.disabled {
+    opacity: 0.7;
+    filter: grayscale(0.3);
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
   }
 }
 
-.activity-type-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 6px 12px;
-  border-radius: 0 8px 0 8px;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+// 卡片头部
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px 24px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex: 1;
+}
+
+.activity-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  i {
+    font-size: 20px;
+    color: #fff;
+  }
   
   &.type-exchange {
-    background: linear-gradient(135deg, #67c23a, #85ce61);
+    background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
   }
   
   &.type-lottery {
-    background: linear-gradient(135deg, #e6a23c, #f0c78a);
+    background: linear-gradient(135deg, #e6a23c 0%, #f0c78a 100%);
   }
   
   &.type-default {
-    background: linear-gradient(135deg, #909399, #b1b3b8);
+    background: linear-gradient(135deg, #909399 0%, #b1b3b8 100%);
   }
 }
 
-.activity-content {
-  padding: 20px;
+.activity-info {
+  flex: 1;
+  min-width: 0;
 }
 
-.activity-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.activity-title {
+  margin: 0 0 8px 0;
+  color: #1a202c;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+
+.header-right {
+  flex-shrink: 0;
+}
+
+.status-toggle {
+  .el-switch {
+    .el-switch__label {
+      font-weight: 600;
+      font-size: 13px;
+    }
+  }
+}
+
+// 卡片内容
+.card-content {
+  padding: 24px;
+}
+
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
   margin-bottom: 20px;
-  
-  h3 {
-    margin: 0;
-    color: #303133;
-    font-size: 18px;
-    font-weight: 600;
-  }
 }
 
-.activity-details {
-  margin-bottom: 20px;
-}
-
-.detail-row {
+.config-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px 0;
-  border-bottom: 1px solid #f5f7fa;
+  gap: 12px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
   
-  &:last-child {
-    border-bottom: none;
-  }
-  
-  .label {
-    color: #606266;
-    font-size: 14px;
-    font-weight: 500;
-  }
-  
-  .value {
-    color: #303133;
-    font-size: 14px;
-    font-weight: 600;
+  &:hover {
+    background: #f1f5f9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 }
 
-.exchange-details,
-.lottery-details,
-.common-details {
-  margin-bottom: 15px;
-  
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.activity-actions {
+.config-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   display: flex;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  i {
+    font-size: 16px;
+    color: #fff;
+  }
+  
+  &.exchange-icon {
+    background: linear-gradient(135deg, #67c23a, #85ce61);
+  }
+  
+  &.amount-icon {
+    background: linear-gradient(135deg, #409eff, #66b3ff);
+  }
+  
+  &.multiplier-icon {
+    background: linear-gradient(135deg, #f56c6c, #f78989);
+  }
+  
+  &.lottery-icon {
+    background: linear-gradient(135deg, #e6a23c, #f0c78a);
+  }
+  
+  &.gift-icon {
+    background: linear-gradient(135deg, #f759ab, #ff8cc8);
+  }
+  
+  &.type-icon {
+    background: linear-gradient(135deg, #9c27b0, #ba68c8);
+  }
+  
+  &.probability-icon {
+    background: linear-gradient(135deg, #00bcd4, #26c6da);
+  }
+}
+
+.config-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.config-label {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.config-value {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+
+// 卡片底部
+.card-footer {
+  padding: 20px 24px 24px;
+  background: #fafbfc;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.footer-actions {
+  display: flex;
+  gap: 12px;
   justify-content: flex-end;
+}
+
+.action-btn {
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  
+  &.edit-btn {
+    background: linear-gradient(135deg, #409eff, #66b3ff);
+    border: none;
+    
+    &:hover {
+      background: linear-gradient(135deg, #337ecc, #5298e6);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+    }
+  }
+  
+  &.detail-btn {
+    background: linear-gradient(135deg, #67c23a, #85ce61);
+    border: none;
+    
+    &:hover {
+      background: linear-gradient(135deg, #529b2e, #6ba844);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(103, 194, 58, 0.3);
+    }
+  }
+}
+
+// 卡片装饰效果
+.card-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, transparent 0%, currentColor 50%, transparent 100%);
+  opacity: 0.6;
+  
+  &.type-exchange {
+    color: #67c23a;
+  }
+  
+  &.type-lottery {
+    color: #e6a23c;
+  }
+  
+  &.type-default {
+    color: #909399;
+  }
 }
 
 // 响应式设计
 @media (max-width: 768px) {
   .activity-cards {
     grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 16px;
   }
   
-  .activity-content {
-    padding: 15px;
+  .activity-card {
+    border-radius: 12px;
   }
   
-  .activity-header {
+  .card-header {
+    padding: 20px 20px 16px;
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
+    gap: 16px;
   }
   
-  .activity-actions {
+  .header-left {
+    width: 100%;
+    gap: 12px;
+  }
+  
+  .activity-icon {
+    width: 40px;
+    height: 40px;
+    
+    i {
+      font-size: 18px;
+    }
+  }
+  
+  .activity-title {
+    font-size: 16px;
+  }
+  
+  .header-right {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .card-content {
+    padding: 20px;
+  }
+  
+  .config-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .config-item {
+    padding: 12px;
+  }
+  
+  .config-icon {
+    width: 32px;
+    height: 32px;
+    
+    i {
+      font-size: 14px;
+    }
+  }
+  
+  
+  .card-footer {
+    padding: 16px 20px 20px;
+  }
+  
+  .footer-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .action-btn {
+    width: 100%;
     justify-content: center;
-    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    padding: 16px;
+  }
+  
+  .action-bar {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+    padding: 16px;
+  }
+  
+  .action-right {
+    justify-content: center;
+  }
+  
+  .activity-cards {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .card-header {
+    padding: 16px;
+  }
+  
+  .card-content {
+    padding: 16px;
+  }
+  
+  .config-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  
+  .config-info {
+    width: 100%;
   }
 }
 
@@ -1273,3 +1591,4 @@ export default {
   }
 }
 </style>
+
