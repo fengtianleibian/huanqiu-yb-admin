@@ -59,8 +59,9 @@
           <!-- 卡片内容 -->
           <div class="card-content">
             <!-- 积分兑换奖金活动详情 -->
-            <div v-if="activity.type === 1" class="config-grid">
-              <div class="config-item">
+            <div v-if="activity.type === 1" class="config-grid exchange-grid">
+              <!-- 第一排：兑换比例和打码倍数 -->
+              <div class="config-item full-width">
                 <div class="config-icon exchange-icon">
                   <i class="el-icon-money"></i>
                 </div>
@@ -69,6 +70,17 @@
                   <div class="config-value">{{ activity.exchangeRatio || 1 }}:1</div>
                 </div>
               </div>
+              <div class="config-item full-width">
+                <div class="config-icon multiplier-icon">
+                  <i class="el-icon-refresh"></i>
+                </div>
+                <div class="config-info">
+                  <div class="config-label">打码倍数</div>
+                  <div class="config-value">{{ activity.wageringMultiplier || '0' }}</div>
+                </div>
+              </div>
+              
+              <!-- 第二排：最小兑换和最大兑换 -->
               <div class="config-item">
                 <div class="config-icon amount-icon">
                   <i class="el-icon-coin"></i>
@@ -85,15 +97,6 @@
                 <div class="config-info">
                   <div class="config-label">最大兑换</div>
                   <div class="config-value">{{ activity.maxAmount || '10000' }} 积分</div>
-                </div>
-              </div>
-              <div class="config-item">
-                <div class="config-icon multiplier-icon">
-                  <i class="el-icon-refresh"></i>
-                </div>
-                <div class="config-info">
-                  <div class="config-label">打码倍数</div>
-                  <div class="config-value">{{ activity.wageringMultiplier || '0' }}</div>
                 </div>
               </div>
             </div>
@@ -151,15 +154,6 @@
                 class="action-btn edit-btn"
               >
                 编辑配置
-              </el-button>
-              <el-button
-                type="success"
-                size="small"
-                icon="el-icon-view"
-                @click="handleViewDetails(activity)"
-                class="action-btn detail-btn"
-              >
-                查看详情
               </el-button>
             </div>
           </div>
@@ -705,11 +699,6 @@ export default {
       this.form.exchangeRatio = numericValue;
     },
 
-    /** 查看活动详情 */
-    handleViewDetails(activity) {
-      this.$modal.msgInfo(`查看${activity.name || this.getDefaultActivityName(activity.type)}的详细信息`);
-      // 这里可以打开详情对话框或跳转到详情页面
-    },
 
     /** 取消按钮 */
     cancel() {
@@ -888,8 +877,8 @@ export default {
   justify-content: space-between;
   align-items: flex-start;
   padding: 24px 24px 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .header-left {
@@ -907,23 +896,38 @@ export default {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #f0f0f0;
   
   i {
     font-size: 20px;
-    color: #fff;
+    color: #666;
   }
   
   &.type-exchange {
-    background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    
+    i {
+      color: #495057;
+    }
   }
   
   &.type-lottery {
-    background: linear-gradient(135deg, #e6a23c 0%, #f0c78a 100%);
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    
+    i {
+      color: #495057;
+    }
   }
   
   &.type-default {
-    background: linear-gradient(135deg, #909399 0%, #b1b3b8 100%);
+    background: #f8f9fa;
+    border-color: #e9ecef;
+    
+    i {
+      color: #495057;
+    }
   }
 }
 
@@ -965,6 +969,15 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
   margin-bottom: 20px;
+  
+  &.exchange-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    
+    .config-item.full-width {
+      grid-column: span 1;
+    }
+  }
 }
 
 .config-item {
@@ -972,15 +985,14 @@ export default {
   align-items: center;
   gap: 12px;
   padding: 16px;
-  background: #f8fafc;
+  background: #fafbfc;
   border-radius: 12px;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid #f0f0f0;
   transition: all 0.2s ease;
   
   &:hover {
-    background: #f1f5f9;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    background: #f8f9fa;
+    border-color: #e9ecef;
   }
 }
 
@@ -992,38 +1004,27 @@ export default {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
   
   i {
     font-size: 16px;
-    color: #fff;
+    color: #6c757d;
   }
   
-  &.exchange-icon {
-    background: linear-gradient(135deg, #67c23a, #85ce61);
-  }
-  
-  &.amount-icon {
-    background: linear-gradient(135deg, #409eff, #66b3ff);
-  }
-  
-  &.multiplier-icon {
-    background: linear-gradient(135deg, #f56c6c, #f78989);
-  }
-  
-  &.lottery-icon {
-    background: linear-gradient(135deg, #e6a23c, #f0c78a);
-  }
-  
-  &.gift-icon {
-    background: linear-gradient(135deg, #f759ab, #ff8cc8);
-  }
-  
-  &.type-icon {
-    background: linear-gradient(135deg, #9c27b0, #ba68c8);
-  }
-  
+  &.exchange-icon,
+  &.amount-icon,
+  &.multiplier-icon,
+  &.lottery-icon,
+  &.gift-icon,
+  &.type-icon,
   &.probability-icon {
-    background: linear-gradient(135deg, #00bcd4, #26c6da);
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    
+    i {
+      color: #6c757d;
+    }
   }
 }
 
@@ -1052,8 +1053,8 @@ export default {
 // 卡片底部
 .card-footer {
   padding: 20px 24px 24px;
-  background: #fafbfc;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+  border-top: 1px solid #f0f0f0;
 }
 
 .footer-actions {
@@ -1064,29 +1065,19 @@ export default {
 
 .action-btn {
   border-radius: 8px;
-  font-weight: 600;
+  font-weight: 500;
   padding: 8px 16px;
   transition: all 0.2s ease;
   
   &.edit-btn {
-    background: linear-gradient(135deg, #409eff, #66b3ff);
-    border: none;
+    background: #ffffff;
+    border: 1px solid #d9d9d9;
+    color: #595959;
     
     &:hover {
-      background: linear-gradient(135deg, #337ecc, #5298e6);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-    }
-  }
-  
-  &.detail-btn {
-    background: linear-gradient(135deg, #67c23a, #85ce61);
-    border: none;
-    
-    &:hover {
-      background: linear-gradient(135deg, #529b2e, #6ba844);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(103, 194, 58, 0.3);
+      background: #f5f5f5;
+      border-color: #bfbfbf;
+      color: #262626;
     }
   }
 }
@@ -1097,20 +1088,13 @@ export default {
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, transparent 0%, currentColor 50%, transparent 100%);
-  opacity: 0.6;
+  height: 2px;
+  background: #f0f0f0;
   
-  &.type-exchange {
-    color: #67c23a;
-  }
-  
-  &.type-lottery {
-    color: #e6a23c;
-  }
-  
+  &.type-exchange,
+  &.type-lottery,
   &.type-default {
-    color: #909399;
+    background: #e9ecef;
   }
 }
 
@@ -1165,6 +1149,15 @@ export default {
     grid-template-columns: 1fr;
     gap: 12px;
     margin-bottom: 16px;
+    
+    &.exchange-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      
+      .config-item.full-width {
+        grid-column: span 1;
+      }
+    }
   }
   
   .config-item {
@@ -1186,8 +1179,7 @@ export default {
   }
   
   .footer-actions {
-    flex-direction: column;
-    gap: 8px;
+    justify-content: flex-end;
   }
   
   .action-btn {
