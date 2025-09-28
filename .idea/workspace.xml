@@ -5,6 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="">
+      <change beforePath="$PROJECT_DIR$/src/api/biz/memberFeedback.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/biz/memberFeedback.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/views/biz/member/mmeber_feedback/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/member/mmeber_feedback/index.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

@@ -16,3 +16,20 @@ export function listMemberFeedback(query) {
     params: query
   })
 }
+
+// 客服反馈
+export function addFeedback(data) {
+  return request({
+    url: '/system/api/member_feedback/feedback',
+    method: 'post',
+    data: data
+  })
+}
+
+// 删除反馈
+export function delFeedback(id) {
+  return request({
+    url: `/system/api/member_feedback/delFeedback/${id}`,
+    method: 'post'
+  })
+}
