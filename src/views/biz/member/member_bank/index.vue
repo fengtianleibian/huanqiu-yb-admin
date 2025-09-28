@@ -60,13 +60,12 @@
 
     <el-table v-loading="loading" :data="memberBankList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="ID" align="center" prop="id" width="80"/>
-      <el-table-column label="用户ID" align="center" prop="memberId" width="100"/>
-      <el-table-column label="真实姓名" align="center" prop="realName" width="120"/>
-      <el-table-column label="银行卡号" align="center" prop="bankCardNum" width="180" show-overflow-tooltip/>
-      <el-table-column label="银行名称" align="center" prop="bankName" width="120" show-overflow-tooltip/>
-      <el-table-column label="开户支行" align="center" prop="bankBranch" width="150" show-overflow-tooltip/>
-      <el-table-column label="是否启用" align="center" prop="isEnable" width="100">
+      <el-table-column label="用户ID" align="center" prop="memberId"/>
+      <el-table-column label="真实姓名" align="center" prop="realName" />
+      <el-table-column label="银行卡号" align="center" prop="bankCardNum"  show-overflow-tooltip/>
+      <el-table-column label="银行名称" align="center" prop="bankName"  show-overflow-tooltip/>
+      <el-table-column label="开户支行" align="center" prop="bankBranch" show-overflow-tooltip/>
+      <el-table-column label="是否启用" align="center" prop="isEnable" >
         <template slot-scope="scope">
           <el-tag v-if="scope.row.isEnable === 0" type="success">启用</el-tag>
           <el-tag v-else type="danger">禁用</el-tag>
@@ -117,8 +116,25 @@
         <el-form-item label="真实姓名" prop="realName">
           <el-input v-model="form.realName" placeholder="请输入真实姓名"/>
         </el-form-item>
-        <el-form-item label="银行名称" prop="bankName">
-          <el-input v-model="form.bankName" placeholder="请输入银行名称"/>
+         <el-form-item label="银行名称" prop="bankName">
+           <el-select 
+             v-model="form.bankName" 
+             placeholder="请选择银行名称" 
+             style="width: 100%" 
+             @change="handleBankChange"
+             filterable>
+             <el-option
+               v-for="bank in bankList"
+               :key="bank.id"
+               :label="bank.bankName"
+               :value="bank.bankName">
+               <span style="float: left">{{ bank.bankName }}</span>
+               <span style="float: right; color: #8492a6; font-size: 13px">{{ bank.bankCode }}</span>
+             </el-option>
+           </el-select>
+         </el-form-item>
+        <el-form-item label="货币类型" prop="currencyType">
+          <el-input v-model="form.currencyType" placeholder="货币类型" readonly/>
         </el-form-item>
         <el-form-item label="银行卡号" prop="bankCardNum">
           <el-input v-model="form.bankCardNum" placeholder="请输入银行卡号"/>
@@ -136,7 +152,11 @@
           <el-input v-model="form.remark" type="textarea" placeholder="请输入备注"/>
         </el-form-item>
         <el-form-item label="谷歌验证码" prop="googlePassword">
-          <el-input v-model="form.googlePassword" placeholder="请输入谷歌验证码" show-password/>
+          <el-input 
+            v-model="googlePassword" 
+            placeholder="请输入谷歌验证码" 
+            show-password
+            :key="'google-password-' + (form.id || 'new')"/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -162,6 +182,7 @@
 
 <script>
 import {listMemberBank, addMemberBank, updateMemberBank, delMemberBank} from "@/api/biz/memberBank";
+import {listAllBank} from "@/api/biz/bank";
 
 export default {
   name: "MemberBank",
@@ -179,6 +200,8 @@ export default {
       total: 0,
       // 用户银行卡信息表格数据
       memberBankList: [],
+      // 银行列表数据
+      bankList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -195,6 +218,8 @@ export default {
       },
       // 表单参数
       form: {},
+      // 谷歌验证码（单独处理）
+      googlePassword: '',
       // 删除表单参数
       deleteForm: {
         googlePassword: ''
@@ -215,9 +240,6 @@ export default {
         ],
         isEnable: [
           { required: true, message: "是否启用不能为空", trigger: "change" }
-        ],
-        googlePassword: [
-          { required: true, message: "谷歌验证码不能为空", trigger: "blur" }
         ]
       },
       // 删除表单校验
@@ -230,6 +252,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getBankList();
   },
   methods: {
     /** 查询用户银行卡信息列表 */
@@ -244,6 +267,25 @@ export default {
           this.$modal.msgError(response.message);
         }
       });
+    },
+    /** 获取银行列表 */
+    getBankList() {
+      listAllBank().then(response => {
+        if (response.code === 200) {
+          this.bankList = response.content;
+        } else {
+          this.$modal.msgError(response.message);
+        }
+      });
+    },
+    /** 银行选择变化 */
+    handleBankChange(bankName) {
+      // 找到选中的银行信息
+      const selectedBank = this.bankList.find(bank => bank.bankName === bankName);
+      if (selectedBank) {
+        // 自动设置货币类型
+        this.form.currencyType = selectedBank.currencyType;
+      }
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -268,20 +310,42 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
+      // 先关闭对话框
+      this.open = false;
+      // 重置表单
       this.reset();
       const id = row.id || this.ids[0];
-      this.form = Object.assign({}, row);
-      this.form.googlePassword = '';
-      this.open = true;
-      this.title = "修改用户银行卡信息";
+      
+      // 使用nextTick确保DOM完全更新
+      this.$nextTick(() => {
+        // 设置表单数据
+        this.form = Object.assign({}, row);
+        // 清空谷歌验证码
+        this.googlePassword = '';
+        
+        // 再次使用nextTick确保数据设置完成后再打开对话框
+        this.$nextTick(() => {
+          this.open = true;
+          this.title = "修改用户银行卡信息";
+        });
+      });
     },
     /** 提交按钮 */
     submitForm() {
       this.$refs["form"].validate(valid => {
         if (valid) {
+          // 检查谷歌验证码是否为空
+          if (!this.googlePassword) {
+            this.$modal.msgError("谷歌验证码不能为空");
+            return;
+          }
+          
+          // 复制form对象，不需要移除googlePassword字段
+          const memberBankData = { ...this.form };
+          
           const data = {
-            memberBank: this.form,
-            googlePassword: this.form.googlePassword
+            memberBank: JSON.stringify(memberBankData),
+            googlePassword: this.googlePassword
           };
           const isEdit = this.form.id !== undefined;
           const apiCall = isEdit ? updateMemberBank(data) : addMemberBank(data);
@@ -336,6 +400,13 @@ export default {
     },
     // 表单重置
     reset() {
+      // 先重置表单验证状态
+      if (this.$refs.form) {
+        this.$refs.form.clearValidate();
+      }
+      // 清空谷歌验证码
+      this.googlePassword = '';
+      // 再设置表单数据
       this.form = {
         id: undefined,
         memberId: undefined,
@@ -343,11 +414,10 @@ export default {
         bankCardNum: undefined,
         bankName: undefined,
         bankBranch: undefined,
+        currencyType: undefined,
         isEnable: 0,
-        remark: undefined,
-        googlePassword: undefined
+        remark: undefined
       };
-      this.resetForm("form");
     }
   }
 };

@@ -42,3 +42,11 @@ export function delBank(ids) {
     method: 'post'
   })
 }
+
+// 获取银行列表
+export function listAllBank() {
+  return request({
+    url: '/system/api/bank/listAll',
+    method: 'get'
+  })
+}

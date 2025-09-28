@@ -13,7 +13,7 @@ export function listMemberBank(query) {
 export function addMemberBank(data) {
   return request({
     url: '/system/api/member_bank',
-    method: 'put',
+    method: 'post',
     data: data
   })
 }

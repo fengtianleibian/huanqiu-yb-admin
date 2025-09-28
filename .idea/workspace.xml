@@ -5,7 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/src/views/biz/member/member_bank/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/biz/bank.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/biz/bank.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/api/biz/memberBank.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/biz/memberBank.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/biz/member/member_bank/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/member/member_bank/index.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
