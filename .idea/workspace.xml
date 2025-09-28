@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/src/api/biz/memberFeedback.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/api/biz/memberFeedback.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/member/mmeber_feedback/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/member/mmeber_feedback/index.vue" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/views/biz/member/member_bank/index.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,7 +39,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "dev",
-    "last_opened_file_path": "/Users/J/GS/HQ/yb/huanqiu-yb-admin/src/views/biz/member/mmeber_feedback",
+    "last_opened_file_path": "/Users/J/GS/HQ/yb/huanqiu-yb-admin/src/views/biz/member/member_bank",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -52,11 +51,11 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/views/biz/member/member_bank" />
       <recent name="$PROJECT_DIR$/src/views/biz/member/mmeber_feedback" />
       <recent name="$PROJECT_DIR$/src/views/biz/activity/points" />
       <recent name="$PROJECT_DIR$/src/views/biz/pay/bank" />
       <recent name="$PROJECT_DIR$/src/views/biz/member/member_vip_level" />
-      <recent name="$PROJECT_DIR$/src/api/biz" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/assets/icons/svg" />
