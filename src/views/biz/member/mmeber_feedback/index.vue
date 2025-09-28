@@ -9,10 +9,18 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="操作类型" prop="type">
-        <el-select v-model="queryParams.type" placeholder="请选择操作类型" clearable>
+      <el-form-item label="用户名" prop="memberName">
+        <el-input
+          v-model="queryParams.memberName"
+          placeholder="请输入用户名"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="反馈类型" prop="feedbackType">
+        <el-select v-model="queryParams.feedbackType" placeholder="请选择反馈类型" clearable>
           <el-option
-            v-for="item in typeOptions"
+            v-for="item in feedbackTypeOptions"
             :key="item.type"
             :label="item.content"
             :value="item.type"
@@ -40,29 +48,21 @@
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" :data="memberWalletIntegralLogList" style="width: 100%">
-      <el-table-column label="ID" align="center" prop="id"/>
+    <el-table v-loading="loading" :data="memberFeedbackList" style="width: 100%">
       <el-table-column label="用户ID" align="center" prop="memberId"/>
-      <el-table-column label="操作前积分" align="center" prop="integralBefore">
+      <el-table-column label="用户名" align="center" prop="memberName" show-overflow-tooltip/>
+      <el-table-column label="反馈类型" align="center" prop="feedbackType">
         <template slot-scope="scope">
-          <span>{{ formatNumber(scope.row.integralBefore) }}</span>
+          <el-tag type="primary">{{ getFeedbackTypeName(scope.row.feedbackType) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作积分" align="center" prop="integral">
+      <el-table-column label="标题" align="center" prop="title" show-overflow-tooltip/>
+      <el-table-column label="内容" align="center" prop="content" show-overflow-tooltip/>
+      <el-table-column label="人员类型" align="center" prop="type">
         <template slot-scope="scope">
-          <span :class="scope.row.integral > 0 ? 'text-success' : 'text-danger'">
-            {{ scope.row.integral > 0 ? '+' : '' }}{{ formatNumber(scope.row.integral) }}
-          </span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作后积分" align="center" prop="integralAfter">
-        <template slot-scope="scope">
-          <span>{{ formatNumber(scope.row.integralAfter) }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作类型" align="center" prop="type">
-        <template slot-scope="scope">
-          <el-tag type="primary">{{ getTypeName(scope.row.type) }}</el-tag>
+          <el-tag :type="scope.row.type === 1 ? 'success' : 'warning'">
+            {{ scope.row.type === 1 ? '会员' : '客服' }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime">
@@ -83,10 +83,10 @@
 </template>
 
 <script>
-import {listMemberWalletIntegralLog, getIntegralLogTypeList} from "@/api/biz/memberWalletIntegralLog";
+import {listMemberFeedback, getFeedbackTypeList} from "@/api/biz/memberFeedback";
 
 export default {
-  name: "MemberWalletIntegralLog",
+  name: "MemberFeedback",
   data() {
     return {
       // 遮罩层
@@ -95,52 +95,54 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 用户钱包积分日志表格数据
-      memberWalletIntegralLogList: [],
-      // 操作类型选项
-      typeOptions: [],
+      // 用户反馈表格数据
+      memberFeedbackList: [],
+      // 反馈类型选项
+      feedbackTypeOptions: [],
       // 日期范围
       dateRange: [],
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
+        parentId: 0,
         memberId: undefined,
-        type: undefined,
+        memberName: undefined,
+        feedbackType: undefined,
         beginTime: undefined,
         endTime: undefined
       }
     };
   },
   created() {
-    this.getTypeList();
+    this.getFeedbackTypeList();
     this.getList();
   },
   methods: {
-    /** 查询操作类型列表 */
-    getTypeList() {
-      getIntegralLogTypeList().then(response => {
+    /** 查询反馈类型列表 */
+    getFeedbackTypeList() {
+      getFeedbackTypeList().then(response => {
         if (response.code === 200) {
-          this.typeOptions = response.content || [];
+          this.feedbackTypeOptions = response.content || [];
         }
       }).catch(() => {
-        this.typeOptions = [];
+        this.feedbackTypeOptions = [];
       });
     },
-    /** 查询用户钱包积分日志列表 */
+    /** 查询用户反馈列表 */
     getList() {
       this.loading = true;
       this.addDateRange();
-      listMemberWalletIntegralLog(this.queryParams).then(response => {
+      listMemberFeedback(this.queryParams).then(response => {
         if (response.code === 200) {
-          this.memberWalletIntegralLogList = response.content && response.content.list ? response.content.list : [];
+          this.memberFeedbackList = response.content && response.content.list ? response.content.list : [];
           this.total = response.content && response.content.total ? response.content.total : 0;
           this.loading = false;
         } else {
           this.$modal.msgError(response.message);
         }
       }).catch(() => {
-        this.memberWalletIntegralLogList = [];
+        this.memberFeedbackList = [];
         this.total = 0;
         this.loading = false;
       });
@@ -165,14 +167,9 @@ export default {
         this.queryParams.endTime = this.dateRange[1];
       }
     },
-    /** 格式化数字显示 */
-    formatNumber(value) {
-      if (value == null) return '0';
-      return Number(value).toLocaleString();
-    },
-    /** 获取操作类型名称 */
-    getTypeName(type) {
-      const typeOption = this.typeOptions.find(item => item.type === String(type));
+    /** 获取反馈类型名称 */
+    getFeedbackTypeName(feedbackType) {
+      const typeOption = this.feedbackTypeOptions.find(item => item.type === String(feedbackType));
       return typeOption ? typeOption.content : '未知';
     }
   }
@@ -180,11 +177,4 @@ export default {
 </script>
 
 <style scoped>
-.text-success {
-  color: #67c23a;
-}
-
-.text-danger {
-  color: #f56c6c;
-}
 </style>
