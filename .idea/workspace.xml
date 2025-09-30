@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/src/views/biz/activity/day_first_recharge/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/activity/day_first_recharge/index.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/activity/first_recharge/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/activity/first_recharge/index.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/views/biz/activity/red_envelope_rain/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/activity/red_envelope_rain/index.vue" afterDir="false" />
-    </list>
+    <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

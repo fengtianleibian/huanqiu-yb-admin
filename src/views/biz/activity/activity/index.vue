@@ -81,13 +81,19 @@
           <span v-else>-</span>
         </template>
       </el-table-column>
+     
+      <el-table-column label="打码倍数" align="center" prop="wageringMultiplier">
+        <template slot-scope="scope">
+          <span>{{ scope.row.wageringMultiplier || '-' }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="排序" align="center" prop="sort"/>
-      <el-table-column label="开始时间" align="center" prop="beginTime">
+      <el-table-column label="开始时间" align="center" prop="beginTime" width="160">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.beginTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="结束时间" align="center" prop="endTime">
+      <el-table-column label="结束时间" align="center" prop="endTime" width="160">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.endTime) }}</span>
         </template>
@@ -98,7 +104,7 @@
           <span v-if="scope.row.status === 1"><el-tag type="danger">停用</el-tag></span>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime">
+      <el-table-column label="创建时间" align="center" prop="createTime" width="160">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -135,9 +141,14 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="排序" prop="sort">
               <el-input-number v-model="form.sort" :min="0" :max="999" placeholder="请输入排序" style="width: 100%"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="打码倍数" prop="wageringMultiplier">
+              <el-input-number v-model="form.wageringMultiplier" :min="0" :precision="2" placeholder="请输入打码倍数" style="width: 100%"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -311,6 +322,7 @@ export default {
         contentImg: undefined,
         status: 0,
         sort: 0,
+        wageringMultiplier: undefined,
         beginTime: undefined,
         endTime: undefined
       },
@@ -330,6 +342,18 @@ export default {
         ],
         sort: [
           {required: true, message: "排序不能为空", trigger: "blur"}
+        ],
+        wageringMultiplier: [
+          {
+            validator: (rule, value, callback) => {
+              if (value !== undefined && value !== null && value < 0) {
+                callback(new Error('打码倍数不能小于0'));
+              } else {
+                callback();
+              }
+            },
+            trigger: 'blur'
+          }
         ],
         beginTime: [
           {required: true, message: "开始时间不能为空", trigger: "change"},
@@ -443,6 +467,7 @@ export default {
         contentImg: undefined,
         status: 0,
         sort: 0,
+        wageringMultiplier: undefined,
         beginTime: undefined,
         endTime: undefined
       };
