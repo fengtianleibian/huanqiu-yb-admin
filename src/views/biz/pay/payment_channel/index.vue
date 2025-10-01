@@ -62,7 +62,7 @@
 
     <el-table v-loading="loading" :data="channelList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="通道名称" align="center" prop="name" :show-overflow-tooltip="true"/>
+      <el-table-column label="通道名称" align="center" prop="name" :show-overflow-tooltip="true" width="140"/>
       <el-table-column label="渠道商名称" align="center" prop="paymentChannelProviderName" :show-overflow-tooltip="true"/>
       <el-table-column label="通道编码" align="center" prop="payCode" :show-overflow-tooltip="true"/>
       <el-table-column label="类型" align="center" prop="type">
@@ -76,6 +76,7 @@
       <el-table-column label="上限" align="center" prop="up"/>
       <el-table-column label="创建订单数" align="center" prop="createCount"/>
       <el-table-column label="成功订单数" align="center" prop="successCount"/>
+      <el-table-column label="排序" align="center" prop="sort"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status === 0 ? 'success' : 'danger'">
@@ -83,6 +84,7 @@
           </el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="备注" align="center" prop="remark"/>
       <el-table-column label="创建时间" align="center" prop="createTime" width="160">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -155,6 +157,9 @@
         </el-form-item>
         <el-form-item label="上限" prop="up">
           <el-input-number v-model="form.up" :precision="2" :step="1" :min="0" style="width: 100%"/>
+        </el-form-item>
+        <el-form-item label="排序" prop="sort">
+          <el-input-number v-model="form.sort" :min="0" :step="1" style="width: 100%" placeholder="数值越小越靠前"/>
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
@@ -296,6 +301,7 @@ export default {
         down: undefined,
         createCount: 0,
         successCount: 0,
+        sort: 0,
         status: 0,
         type: 1,
         remark: undefined
