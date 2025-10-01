@@ -43,3 +43,11 @@ export function delPaymentChannelProvider(ids) {
   })
 }
 
+// 获取所有三方支付渠道商列表
+export function listAllPaymentChannelProvider() {
+  return request({
+    url: '/system/api/payment_channel_provider/listAll',
+    method: 'get'
+  })
+}
+
