@@ -63,7 +63,7 @@
     <el-table v-loading="loading" :data="providerList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="渠道名称" align="center" prop="name" :show-overflow-tooltip="true"/>
-      <el-table-column label="商户ID" align="center" prop="mchId" :show-overflow-tooltip="true"/>
+      <el-table-column label="展示名称" align="center" prop="showName" :show-overflow-tooltip="true"/>
       <el-table-column label="货币名" align="center" prop="currency"/>
       <el-table-column label="货币缩写" align="center" prop="currencyShort"/>
       <el-table-column label="状态" align="center" prop="status">
@@ -117,6 +117,13 @@
               <el-input v-model="form.name" placeholder="请输入渠道名称"/>
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            <el-form-item label="展示名称" prop="showName">
+              <el-input v-model="form.showName" placeholder="请输入展示名称"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12">
             <el-form-item label="商户ID" prop="mchId">
               <el-input v-model="form.mchId" placeholder="请输入商户ID"/>
@@ -248,6 +255,9 @@ export default {
         name: [
           {required: true, message: "渠道名称不能为空", trigger: "blur"}
         ],
+        showName: [
+          {required: true, message: "展示名称不能为空", trigger: "blur"}
+        ],
         mchId: [
           {required: true, message: "商户ID不能为空", trigger: "blur"}
         ],
@@ -291,6 +301,7 @@ export default {
       this.form = {
         id: undefined,
         name: undefined,
+        showName: undefined,
         mchId: undefined,
         paymentKey: undefined,
         paidKey: undefined,

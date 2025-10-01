@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="80px">
+    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="100px">
       <el-form-item label="通道名称" prop="name">
         <el-input
           v-model="queryParams.name"
@@ -8,6 +8,17 @@
           clearable
           @keyup.enter.native="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="三方渠道商" prop="paymentChannelProviderId">
+        <el-select v-model="queryParams.paymentChannelProviderId" placeholder="请选择三方渠道商" clearable filterable>
+          <el-option
+            v-for="item in providerList"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          >
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
@@ -63,7 +74,8 @@
     <el-table v-loading="loading" :data="channelList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="通道名称" align="center" prop="name" :show-overflow-tooltip="true" width="140"/>
-      <el-table-column label="渠道商名称" align="center" prop="paymentChannelProviderName" :show-overflow-tooltip="true"/>
+      <el-table-column label="展示名称" align="center" prop="showName" :show-overflow-tooltip="true" width="140"/>
+      <el-table-column label="渠道商名称" align="center" prop="paymentChannelProviderName" :show-overflow-tooltip="true" width="140"/>
       <el-table-column label="通道编码" align="center" prop="payCode" :show-overflow-tooltip="true"/>
       <el-table-column label="类型" align="center" prop="type">
         <template slot-scope="scope">
@@ -72,10 +84,13 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="下限" align="center" prop="down"/>
-      <el-table-column label="上限" align="center" prop="up"/>
-      <el-table-column label="创建订单数" align="center" prop="createCount"/>
-      <el-table-column label="成功订单数" align="center" prop="successCount"/>
+      <el-table-column label="金额范围" align="center" width="140">
+        <template slot-scope="scope">
+          {{ scope.row.down }} - {{ scope.row.up }}
+        </template>
+      </el-table-column>
+      <el-table-column label="创建订单数" align="center" prop="createCount" width="120"/>
+      <el-table-column label="成功订单数" align="center" prop="successCount" width="120"/>
       <el-table-column label="排序" align="center" prop="sort"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
@@ -90,7 +105,7 @@
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="180" fixed="right">
         <template slot-scope="scope">
           <el-button
             size="mini"
@@ -126,6 +141,9 @@
         <el-form-item label="通道名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入通道名称"/>
         </el-form-item>
+        <el-form-item label="展示名称" prop="showName">
+          <el-input v-model="form.showName" placeholder="请输入展示名称"/>
+        </el-form-item>
         <el-form-item label="三方渠道商" prop="paymentChannelProviderId">
           <el-select
             v-model="form.paymentChannelProviderId"
@@ -151,6 +169,16 @@
             <el-radio :label="1">充值</el-radio>
             <el-radio :label="2">提现</el-radio>
           </el-radio-group>
+        </el-form-item>
+        <el-form-item label="金额类型" prop="amountType">
+          <el-radio-group v-model="form.amountType">
+            <el-radio :label="1">任意</el-radio>
+            <el-radio :label="2">整百</el-radio>
+            <el-radio :label="3">固定额</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="固定额" prop="fixedAmount" v-if="form.amountType === 3">
+          <el-input v-model="form.fixedAmount" placeholder="请输入固定额，多个金额用逗号分割，例如：100,200,500"/>
         </el-form-item>
         <el-form-item label="下限" prop="down">
           <el-input-number v-model="form.down" :precision="2" :step="1" :min="0" style="width: 100%"/>
@@ -218,6 +246,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         name: undefined,
+        paymentChannelProviderId: undefined,
         status: undefined
       },
       // 表单参数
@@ -235,6 +264,21 @@ export default {
         ],
         type: [
           {required: true, message: "请选择类型", trigger: "change"}
+        ],
+        amountType: [
+          {required: true, message: "请选择金额类型", trigger: "change"}
+        ],
+        fixedAmount: [
+          {
+            validator: (rule, value, callback) => {
+              if (this.form.amountType === 3 && !value) {
+                callback(new Error("固定额不能为空"));
+              } else {
+                callback();
+              }
+            },
+            trigger: "blur"
+          }
         ],
         down: [
           {required: true, message: "下限不能为空", trigger: "blur"}
@@ -294,11 +338,14 @@ export default {
       this.form = {
         id: undefined,
         name: undefined,
+        showName: undefined,
         paymentChannelProviderId: undefined,
         paymentChannelProviderName: undefined,
         payCode: undefined,
         up: undefined,
         down: undefined,
+        amountType: 1,
+        fixedAmount: undefined,
         createCount: 0,
         successCount: 0,
         sort: 0,
