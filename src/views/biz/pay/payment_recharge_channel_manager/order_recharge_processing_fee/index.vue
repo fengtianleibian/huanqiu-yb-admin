@@ -19,7 +19,7 @@
         <el-alert
           title="每日免费次数"
           type="info"
-          :description="`当前每日免费次数：${firstRecordDailyFreeCount} 次`"
+          :description="`当前每日免费次数：${firstRecordDailyFreeCount === -1 ? '不限制' : firstRecordDailyFreeCount + ' 次'}`"
           show-icon
           :closable="false">
         </el-alert>
@@ -62,6 +62,17 @@
         >删除
         </el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="warning"
+          plain
+          icon="el-icon-edit"
+          size="mini"
+          @click="handleUpdateFreeCount"
+          v-hasPermi="['order_processing_fee:update']"
+        >修改每日免费次数
+        </el-button>
+      </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -72,7 +83,23 @@
           {{ scope.row.down }} - {{ scope.row.up }}
         </template>
       </el-table-column>
-      <el-table-column label="手续费(%)" align="center" prop="processingFee"/>
+      <el-table-column label="手续费类型" align="center" prop="processingFeeType">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.processingFeeType === 1 ? 'success' : 'warning'">
+            {{ scope.row.processingFeeType === 1 ? '百分比' : '固定' }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="手续费" align="center">
+        <template slot-scope="scope">
+          <span v-if="scope.row.processingFeeType === 1">
+            {{ scope.row.processingFeePercentage }}%
+          </span>
+          <span v-else>
+            {{ scope.row.processingFeeFixe }}
+          </span>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status === 0 ? 'success' : 'danger'">
@@ -125,8 +152,18 @@
         <el-form-item label="上限" prop="up">
           <el-input-number v-model="form.up" :precision="2" :step="1" :min="0" style="width: 100%"/>
         </el-form-item>
-        <el-form-item label="手续费(%)" prop="processingFee">
-          <el-input-number v-model="form.processingFee" :precision="2" :step="0.01" :min="0" :max="100"
+        <el-form-item label="手续费类型" prop="processingFeeType">
+          <el-radio-group v-model="form.processingFeeType">
+            <el-radio :label="1">百分比</el-radio>
+            <el-radio :label="2">固定</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="手续费(%)" prop="processingFeePercentage" v-if="form.processingFeeType === 1">
+          <el-input-number v-model="form.processingFeePercentage" :precision="2" :step="0.01" :min="0" :max="100"
+                           style="width: 100%"/>
+        </el-form-item>
+        <el-form-item label="手续费(固定)" prop="processingFeeFixe" v-if="form.processingFeeType === 2">
+          <el-input-number v-model="form.processingFeeFixe" :precision="2" :step="0.01" :min="0"
                            style="width: 100%"/>
         </el-form-item>
         <el-form-item label="状态" prop="status">
@@ -144,6 +181,22 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 修改每日免费次数对话框 -->
+    <el-dialog title="修改每日免费次数" :visible.sync="freeCountDialogOpen" width="400px" append-to-body>
+      <el-form ref="freeCountForm" :model="freeCountForm" :rules="freeCountRules" label-width="120px">
+        <el-form-item label="每日免费次数" prop="count">
+          <el-input-number v-model="freeCountForm.count" :min="-1" :step="1" style="width: 100%"/>
+          <div style="color: #909399; font-size: 12px; margin-top: 5px;">
+            提示：-1 表示不限制免费次数
+          </div>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFreeCountForm">确 定</el-button>
+        <el-button @click="cancelFreeCountForm">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -153,7 +206,8 @@ import {
   getOrderProcessingFee,
   delOrderProcessingFee,
   addOrderProcessingFee,
-  updateOrderProcessingFee
+  updateOrderProcessingFee,
+  updateFreeCountForDay
 } from "@/api/biz/orderProcessingFee";
 
 export default {
@@ -187,6 +241,27 @@ export default {
       },
       // 表单参数
       form: {},
+      // 每日免费次数对话框显示状态
+      freeCountDialogOpen: false,
+      // 每日免费次数表单参数
+      freeCountForm: {
+        count: 0
+      },
+      // 每日免费次数表单校验
+      freeCountRules: {
+        count: [
+          {required: true, message: "每日免费次数不能为空", trigger: "blur"},
+          {validator: (rule, value, callback) => {
+            if (value === undefined || value === null || value === '') {
+              callback(new Error('每日免费次数不能为空'));
+            } else if (value < -1) {
+              callback(new Error('每日免费次数不能小于-1'));
+            } else {
+              callback();
+            }
+          }, trigger: 'blur'}
+        ]
+      },
       // 表单校验
       rules: {
         down: [
@@ -195,8 +270,8 @@ export default {
         up: [
           {required: true, message: "上限不能为空", trigger: "blur"}
         ],
-        processingFee: [
-          {required: true, message: "手续费不能为空", trigger: "blur"}
+        processingFeeType: [
+          {required: true, message: "手续费类型不能为空", trigger: "change"}
         ],
         status: [
           {required: true, message: "状态不能为空", trigger: "change"}
@@ -242,7 +317,9 @@ export default {
         id: undefined,
         up: undefined,
         down: undefined,
-        processingFee: undefined,
+        processingFeeType: 1,
+        processingFeePercentage: undefined,
+        processingFeeFixe: undefined,
         status: 0,
         type: 1,
         remark: undefined
@@ -327,6 +404,39 @@ export default {
           this.$modal.msgError(response.message);
         }
       }).catch(() => {
+      });
+    },
+    /** 修改每日免费次数按钮操作 */
+    handleUpdateFreeCount() {
+      this.freeCountForm.count = this.firstRecordDailyFreeCount;
+      this.freeCountDialogOpen = true;
+    },
+    /** 取消修改每日免费次数 */
+    cancelFreeCountForm() {
+      this.freeCountDialogOpen = false;
+      this.resetFreeCountForm();
+    },
+    /** 重置每日免费次数表单 */
+    resetFreeCountForm() {
+      this.freeCountForm = {
+        count: 0
+      };
+      this.resetForm("freeCountForm");
+    },
+    /** 提交修改每日免费次数 */
+    submitFreeCountForm() {
+      this.$refs["freeCountForm"].validate(valid => {
+        if (valid) {
+          updateFreeCountForDay(this.freeCountForm.count, 1).then(response => {
+            if (response.code === 200) {
+              this.$modal.msgSuccess("修改成功");
+              this.freeCountDialogOpen = false;
+              this.getList();
+            } else {
+              this.$modal.msgError(response.message);
+            }
+          });
+        }
       });
     }
   }

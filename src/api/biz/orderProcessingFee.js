@@ -42,3 +42,11 @@ export function delOrderProcessingFee(ids) {
     method: 'post'
   })
 }
+
+// 修改订单手续费每日免费次数
+export function updateFreeCountForDay(count, type = 1) {
+  return request({
+    url: '/system/api/order_processing_fee/updateFreeCountForDay/' + count + '/' + type,
+    method: 'put'
+  })
+}
