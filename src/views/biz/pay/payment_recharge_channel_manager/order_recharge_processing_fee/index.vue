@@ -1,12 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" >
-      <el-form-item label="订单类型" prop="type">
-        <el-select v-model="queryParams.type" placeholder="请选择订单类型" disabled>
-          <el-option label="代收" :value="1"></el-option>
-          <el-option label="代付" :value="2"></el-option>
-        </el-select>
-      </el-form-item>
+    <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch">
       <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
           <el-option label="正常" :value="0"></el-option>
@@ -18,6 +12,19 @@
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
+
+    <!-- 每日免费次数显示 -->
+    <el-row :gutter="10" class="mb8" v-if="firstRecordDailyFreeCount !== undefined">
+      <el-col :span="24">
+        <el-alert
+          title="每日免费次数"
+          type="info"
+          :description="`当前每日免费次数：${firstRecordDailyFreeCount} 次`"
+          show-icon
+          :closable="false">
+        </el-alert>
+      </el-col>
+    </el-row>
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
@@ -60,20 +67,12 @@
 
     <el-table v-loading="loading" :data="feeList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center"/>
-      <el-table-column label="订单类型" align="center" prop="type">
-        <template slot-scope="scope">
-          <el-tag :type="scope.row.type === 1 ? 'success' : 'warning'">
-            {{ scope.row.type === 1 ? '代收' : '代付' }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="金额范围" align="center" width="140">
+      <el-table-column label="金额范围" align="center">
         <template slot-scope="scope">
           {{ scope.row.down }} - {{ scope.row.up }}
         </template>
       </el-table-column>
-      <el-table-column label="手续费(%)" align="center" prop="processingFee" width="120"/>
-      <el-table-column label="免费次数" align="center" prop="freeCount" width="120"/>
+      <el-table-column label="手续费(%)" align="center" prop="processingFee"/>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status === 0 ? 'success' : 'danger'">
@@ -120,12 +119,6 @@
     <!-- 添加或修改订单手续费对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="120px">
-        <el-form-item label="订单类型" prop="type">
-          <el-radio-group v-model="form.type">
-            <el-radio :label="1">代收</el-radio>
-            <el-radio :label="2">代付</el-radio>
-          </el-radio-group>
-        </el-form-item>
         <el-form-item label="下限" prop="down">
           <el-input-number v-model="form.down" :precision="2" :step="1" :min="0" style="width: 100%"/>
         </el-form-item>
@@ -133,10 +126,8 @@
           <el-input-number v-model="form.up" :precision="2" :step="1" :min="0" style="width: 100%"/>
         </el-form-item>
         <el-form-item label="手续费(%)" prop="processingFee">
-          <el-input-number v-model="form.processingFee" :precision="2" :step="0.01" :min="0" :max="100" style="width: 100%"/>
-        </el-form-item>
-        <el-form-item label="免费次数" prop="freeCount">
-          <el-input-number v-model="form.freeCount" :min="0" :step="1" style="width: 100%"/>
+          <el-input-number v-model="form.processingFee" :precision="2" :step="0.01" :min="0" :max="100"
+                           style="width: 100%"/>
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
@@ -198,9 +189,6 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        type: [
-          {required: true, message: "请选择订单类型", trigger: "change"}
-        ],
         down: [
           {required: true, message: "下限不能为空", trigger: "blur"}
         ],
@@ -210,14 +198,20 @@ export default {
         processingFee: [
           {required: true, message: "手续费不能为空", trigger: "blur"}
         ],
-        freeCount: [
-          {required: true, message: "免费次数不能为空", trigger: "blur"}
-        ],
         status: [
           {required: true, message: "状态不能为空", trigger: "change"}
         ]
       }
     };
+  },
+  computed: {
+    // 获取第一条记录的每日免费次数
+    firstRecordDailyFreeCount() {
+      if (this.feeList && this.feeList.length > 0) {
+        return this.feeList[0].freeCountForDay;
+      }
+      return undefined;
+    }
   },
   created() {
     this.getList();
@@ -249,7 +243,6 @@ export default {
         up: undefined,
         down: undefined,
         processingFee: undefined,
-        freeCount: 0,
         status: 0,
         type: 1,
         remark: undefined
