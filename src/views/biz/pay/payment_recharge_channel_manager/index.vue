@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 标签页切换 -->
-    <el-tabs v-model="activeTab" @tab-click="handleTabClick">
+    <el-tabs v-model="activeTab" @tab-click="handleTabClick" tab-position="top" :tab-padding="30">
       <el-tab-pane label="充值渠道" name="recharge">
         <payment-recharge-channel ref="rechargeChannel" />
       </el-tab-pane>
@@ -14,7 +14,7 @@
 
 <script>
 import PaymentRechargeChannel from './payment_recharge_channel/index.vue'
-import OrderProcessingFee from './order_processing_fee/index.vue'
+import OrderProcessingFee from './order_recharge_processing_fee/index.vue'
 
 export default {
   name: "PaymentChannelManager",
@@ -36,18 +36,3 @@ export default {
 }
 </script>
 
-<style scoped>
-.app-container {
-  padding: 20px;
-}
-
-.el-tabs {
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.el-tabs__content {
-  padding: 20px;
-}
-</style>
