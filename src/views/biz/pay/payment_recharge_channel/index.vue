@@ -247,6 +247,7 @@ export default {
         pageSize: 10,
         name: undefined,
         paymentChannelProviderId: undefined,
+        type: 1,
         status: undefined
       },
       // 表单参数
@@ -363,6 +364,7 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
+      this.queryParams.type = 1; // 确保重置后type保持为充值
       this.handleQuery();
     },
     // 多选框选中数据
