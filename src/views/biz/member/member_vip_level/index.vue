@@ -65,7 +65,7 @@
         </template>
       </el-table-column>
       <el-table-column label="升级彩金奖励" align="center" width="120" prop="upgradeBonus"/>
-      <el-table-column label="升级彩金打码倍数" align="center" width="130" prop="upgradeBonusMultiple"/>
+      <!-- <el-table-column label="升级彩金打码倍数" align="center" width="130" prop="upgradeBonusMultiple"/> -->
       <el-table-column label="周俸禄" align="center" prop="weekBonus">
         <template slot-scope="scope">
           <span style="color: #8B4513;">{{ scope.row.weekBonus }}</span>
@@ -146,14 +146,14 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row :gutter="20">
+        <!-- <el-row :gutter="20">
           <el-col :span="24">
             <el-form-item label="升级彩金打码倍数" prop="upgradeBonusMultiple">
               <el-input-number v-model="form.upgradeBonusMultiple" :min="1" :precision="2" style="width: 100%"
                                placeholder="请输入打码倍数"/>
             </el-form-item>
           </el-col>
-        </el-row>
+        </el-row> -->
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="周俸禄" prop="weekBonus">
@@ -265,9 +265,9 @@ export default {
         upgradeBonus: [
           {required: true, message: "升级彩金奖励不能为空", trigger: "blur"}
         ],
-        upgradeBonusMultiple: [
-          {required: true, message: "升级彩金打码倍数不能为空", trigger: "blur"}
-        ],
+        // upgradeBonusMultiple: [
+        //   {required: true, message: "升级彩金打码倍数不能为空", trigger: "blur"}
+        // ],
         weekBonus: [
           {required: true, message: "周俸禄不能为空", trigger: "blur"}
         ],
