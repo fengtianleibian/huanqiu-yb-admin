@@ -141,6 +141,25 @@
           </el-col>
         </el-row>
         <el-row>
+          <el-col :span="24">
+            <el-form-item label="枚举名称" prop="enumName">
+              <el-select 
+                v-model="form.enumName" 
+                placeholder="请选择枚举名称" 
+                clearable 
+                style="width: 100%"
+                :disabled="form.id !== undefined">
+                <el-option 
+                  v-for="option in activityNameOptions" 
+                  :key="option.type" 
+                  :label="option.content" 
+                  :value="parseInt(option.type)">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12">
             <el-form-item label="排序" prop="sort">
               <el-input-number v-model="form.sort" :min="0" :max="999" placeholder="请输入排序" style="width: 100%"/>
@@ -275,7 +294,7 @@
 </template>
 
 <script>
-import {addActivity, delActivity, listActivity, updateActivity, getActivity, uploadActivity} from "@/api/biz/activity";
+import {addActivity, delActivity, listActivity, updateActivity, getActivity, uploadActivity, listActivityName} from "@/api/biz/activity";
 import {getToken} from "@/utils/auth";
 
 export default {
@@ -296,6 +315,8 @@ export default {
       total: 0,
       // 活动表格数据
       activityList: [],
+      // 活动选项数据
+      activityNameOptions: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -308,6 +329,7 @@ export default {
         status: undefined,
         beginTime: undefined,
         endTime: undefined,
+        enumName: undefined,
       },
       // 日期范围
       dateRange: [],
@@ -324,7 +346,8 @@ export default {
         sort: 0,
         wageringMultiplier: undefined,
         beginTime: undefined,
-        endTime: undefined
+        endTime: undefined,
+        enumName: undefined
       },
       // 表单校验
       rules: {
@@ -386,6 +409,7 @@ export default {
   },
   created() {
     this.getList();
+    this.getActivityNameOptions();
   },
   computed: {
     headers() {
@@ -415,6 +439,23 @@ export default {
           this.$modal.msgError(response.message);
         }
       });
+    },
+
+    /** 获取活动选项 */
+    getActivityNameOptions() {
+      listActivityName().then(response => {
+        if (response.code === 200) {
+          this.activityNameOptions = response.content;
+        } else {
+          this.$modal.msgError(response.message);
+        }
+      });
+    },
+
+    /** 获取枚举名称文本 */
+    getActivityNameText(enumName) {
+      const option = this.activityNameOptions.find(item => item.type === enumName.toString());
+      return option ? option.content : '-';
     },
 
     /** 搜索按钮操作 */
@@ -469,7 +510,8 @@ export default {
         sort: 0,
         wageringMultiplier: undefined,
         beginTime: undefined,
-        endTime: undefined
+        endTime: undefined,
+        enumName: undefined
       };
       this.resetForm("form");
     },

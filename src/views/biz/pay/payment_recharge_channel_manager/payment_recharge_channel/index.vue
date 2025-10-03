@@ -26,6 +26,12 @@
           <el-option label="停用" :value="1"></el-option>
         </el-select>
       </el-form-item>
+      <el-form-item label="显示位置" prop="display">
+        <el-select v-model="queryParams.display" placeholder="请选择显示位置" clearable>
+          <el-option label="PC" :value="1"></el-option>
+          <el-option label="H5" :value="2"></el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -92,6 +98,13 @@
       <el-table-column label="创建订单数" align="center" prop="createCount" width="120"/>
       <el-table-column label="成功订单数" align="center" prop="successCount" width="120"/>
       <el-table-column label="排序" align="center" prop="sort"/>
+      <el-table-column label="显示位置" align="center" prop="display" width="100">
+        <template slot-scope="scope">
+          <el-tag :type="scope.row.display === 1 ? 'primary' : 'info'">
+            {{ scope.row.display === 1 ? 'PC' : 'H5' }}
+          </el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="状态" align="center" prop="status">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status === 0 ? 'success' : 'danger'">
@@ -189,6 +202,12 @@
         <el-form-item label="排序" prop="sort">
           <el-input-number v-model="form.sort" :min="0" :step="1" style="width: 100%" placeholder="数值越小越靠前"/>
         </el-form-item>
+        <el-form-item label="显示位置" prop="display">
+          <el-radio-group v-model="form.display">
+            <el-radio :label="1">PC</el-radio>
+            <el-radio :label="2">H5</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio :label="0">正常</el-radio>
@@ -248,7 +267,8 @@ export default {
         name: undefined,
         paymentChannelProviderId: undefined,
         type: 1,
-        status: undefined
+        status: undefined,
+        display: undefined
       },
       // 表单参数
       form: {},
@@ -286,6 +306,9 @@ export default {
         ],
         up: [
           {required: true, message: "上限不能为空", trigger: "blur"}
+        ],
+        display: [
+          {required: true, message: "显示位置不能为空", trigger: "change"}
         ],
         status: [
           {required: true, message: "状态不能为空", trigger: "change"}
@@ -350,6 +373,7 @@ export default {
         createCount: 0,
         successCount: 0,
         sort: 0,
+        display: 1,
         status: 0,
         type: 1,
         remark: undefined

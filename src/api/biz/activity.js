@@ -56,3 +56,11 @@ export function uploadActivity(file) {
     }
   })
 }
+
+// 获取活动选项
+export function listActivityName() {
+  return request({
+    url: '/system/api/activity/listName',
+    method: 'get'
+  })
+}

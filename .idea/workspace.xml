@@ -5,7 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="097aa40a-5771-4192-9a9b-0b963da84b4c" name="更改" comment="">
-      <change beforePath="$PROJECT_DIR$/src/views/biz/pay/payment_recharge_channel_manager/order_recharge_processing_fee/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/pay/payment_recharge_channel_manager/order_recharge_processing_fee/index.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/views/biz/pay/payment_recharge_channel_manager/payment_recharge_channel/index.vue" beforeDir="false" afterPath="$PROJECT_DIR$/src/views/biz/pay/payment_recharge_channel_manager/payment_recharge_channel/index.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
